@@ -1,0 +1,57 @@
+body {
+    background-color: black;
+}
+
+/* header */
+.navbar-brand img {
+    max-height: 50px; /* Altura máxima del logo */
+    margin-right: 1rem; /* Separación del menú */
+  }
+
+#salir{
+    background-color:#f51f8c;
+    border: 0px;
+}
+
+.nav-link{
+    color:white;
+}
+
+/* Guia de uso */
+#Guia .card {
+    background-color: #e7c9d9; 
+    text-align: center;
+    color: rgb(0, 0, 0);
+    font-family: Arial, sans-serif;
+    height: 16rem;
+}
+
+.icon img{
+    width: 60px;
+    margin: 10px;
+}
+
+#Guia .card h3 {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+#Guia .card p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#Guia .card:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s;
+}
+
+/* Footer */
+footer{
+    background-color: #e7c9d9;
+}
+#creditos{
+    display: flex;
+    justify-content: center;
+    color: black;
+}

@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/bootstrap.css">
-    <title>Document</title>
+    <link rel="stylesheet" href="../css/costume.css">
+    <title>Sistema de Rastreo de flotas</title>
 </head>
 <body>
     <div class="container">
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
           <div class="col-md-3 mb-2 mb-md-0">
-            <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-              <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+            <a href="#" class="navbar-brand d-flex align-items-center">
+              <img src="../img/lampara-de-techo.png" alt="Logo Rastreo de flotas" class="img-fluid"
+              style="max-height: 50px ;">
+            <span class="fs-5" style="color: antiquewhite;"> GeoBuild S.A </span>
             </a>
           </div>
 
@@ -22,12 +25,92 @@
             <li><a href="#" class="nav-link px-2">Centro de Monitoreo</a></li>
             <li><a href="#" class="nav-link px-2">Reportes</a></li>
           </ul>
-    
-          <div class="col-md-3 text-end">
-            <button type="button" class="btn btn-outline-primary me-2">Login</button>
-            <button type="button" class="btn btn-primary">Sign-up</button>
+
+          <div class="col-md-3 text-end" >
+            <button type="button" class="btn btn-primary" id="salir">Cerrar Sesion</button>
           </div>
         </header>
       </div>
+    <hr>
+
+<!-- Bienvenida -->
+    <section id="Inicio">
+      <div class="text-secondary px-4 py-5 text-center">
+        <div class="py-5">
+          <!-- TITULO (FRASE GANCHO) -->
+          <div id="titulo">
+            <h1 class="display-5 fw-bold" style="color: #f51f8c;"> ¡BIENVENIDO! </h1>
+          </div>
+          <div id="subtitulo">
+            <h6 class="display-8 fw-bold" style="color: antiquewhite;">Esperamos que tenga una experiencia exitosa acorde a sus necesidades</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+<hr>
+<!-- Guia de uso -->
+
+<section id="Guia">
+  <div id="container">
+    <div class="d-flex justify-content-center ">
+      <div class="row justify-content-center">
+        <!-- CARD 1 -->
+        <div class="col-sm-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="icon">
+                <img src="../img/personal.png" alt="">
+              </div>
+              <h5 class="card-title">Gestion del Personal</h5>
+              <hr>
+              <h6>Incluye alta,edicion,eliminacion y visualizacion de datos</h6>
+            </div>
+          </div>
+        </div>
+        <!-- CARD 2 -->
+        <div class="col-sm-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="icon">
+                <img src="../img/gestion-de-flotas.png" alt="">
+              </div>
+              <h5 class="card-title">Gestion de vehiculos</h5>
+              <hr>
+              <h6>Incluye alta,edicion,eliminacion y visualizacion de datos</h6>
+            </div>
+          </div>
+        </div>
+        <!-- CARD 3 -->
+        <div class="col-sm-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="icon">
+                <img src="../img/monitoreo-en-tiempo-real.png" alt="">
+              </div>
+              <h5 class="card-title">Centro de Monitoreo</h5>
+              <hr>
+              <h6>Control en la flota</h6>
+              <hr>
+              <h6>Supervisa en tiempo real</h6>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+</section>
+
+
+<!-- Footer -->
+<footer class=" py-3 my-4 border-top">
+  <!-- DERECHOS DE AUTOR -->
+  <div>
+    <p id="creditos">&copy; 2024 Desarrollo de Software, ITU-UNCYO</p>
+  </div>
+</footer>
+
+
 </body>
 </html>

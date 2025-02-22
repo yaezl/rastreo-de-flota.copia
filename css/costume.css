@@ -1,12 +1,27 @@
+/* Reseteo General */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html{
+    height: 100%;
+}
+
+/* Estilos Importantes */
 body {
     background-color: black;
 }
 
-/* header */
+/* Header */
 .navbar-brand img {
     max-height: 50px; /* Altura máxima del logo */
     margin-right: 1rem; /* Separación del menú */
-  }
+}
+
+#nombreEmpresa{
+    color: antiquewhite;
+}
 
 #salir{
     background-color:#f51f8c;
@@ -15,6 +30,19 @@ body {
 
 .nav-link{
     color:white;
+}
+
+.nav-link:hover{
+    color: #f51f8c;
+}
+
+/* Inicio */
+#Inicio #titulo{
+    color: #f51f8c;
+}
+
+#Inicio #subtitulo{
+    color: antiquewhite;
 }
 
 /* Guia de uso */
@@ -50,7 +78,8 @@ body {
 footer{
     background-color: #e7c9d9;
 }
-#creditos{
+
+.creditos{
     display: flex;
     justify-content: center;
     color: black;

@@ -1,0 +1,74 @@
+html,
+body {
+  height: 100%;
+  background-color: black;
+}
+
+.form-signin {
+  max-width: 330px;
+  padding: 1rem;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+
+  /*outline: none !important; /* Elimina cualquier borde predeterminado */
+  /*border: solid #FF1493 !important; /* Borde rosado */
+  /*box-shadow:#FF1493 !important; /* Sombra rosada */
+  
+}
+
+/* NO FUNCIONA - es para cambiar fondo azul*/
+.form-signin .form-floating:focus {
+  outline: none !important; /* Elimina cualquier borde predeterminado */
+  border: 2px solid #FF1493 !important; /* Borde rosado */
+  box-shadow: 0 0 5px #FF1493 !important; /* Sombra rosada */
+}
+
+/* Esto elimina el resaltado azul en navegadores como Chrome y Edge */
+.form-signin .form-floating:focus-visible {
+  outline: none !important;
+}
+/* ---------------------------- */
+
+
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Estilos Importantes */
+
+#formulario {
+  font-family: 'Russo One';
+}
+
+#nombreEmpresa{
+  color: antiquewhite;
+}
+
+#confirmar{
+  background-color:#f51f8c;
+  border: 0px;
+}
+
+#confirmar:hover{
+  background-color: #a2145d;
+}
+
+#titulo{
+  color: #f51f8c;
+}
+
+.creditos{
+  display: flex;
+  justify-content: center;
+  color: black;
+}

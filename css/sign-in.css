@@ -1,8 +1,7 @@
-html,
-body {
+html, body {
   height: 100%;
   background-color: black;
-  
+  font-family: 'Russo One';
 }
 
 .form-signin {
@@ -10,28 +9,11 @@ body {
   padding: 1rem;
 }
 
-.form-signin .form-floating:focus-within {
-  z-index: 2;
-
-  /*outline: none !important; /* Elimina cualquier borde predeterminado */
-  /*border: solid #FF1493 !important; /* Borde rosado */
-  /*box-shadow:#FF1493 !important; /* Sombra rosada */
-  
+.form-control:focus {
+  border-color: #FF1493; /* Cambia el color del borde */
+  box-shadow: 0 0 20px #FF1493; /* Efecto de resplandor rosa*/
+  outline: none; /* Elimina el contorno predeterminado */
 }
-
-/* NO FUNCIONA - es para cambiar fondo azul*/
-.form-signin .form-floating:focus {
-  outline: none !important; /* Elimina cualquier borde predeterminado */
-  border: 2px solid #FF1493 !important; /* Borde rosado */
-  box-shadow: 0 0 5px #FF1493 !important; /* Sombra rosada */
-}
-
-/* Esto elimina el resaltado azul en navegadores como Chrome y Edge */
-.form-signin .form-floating:focus-visible {
-  outline: none !important;
-}
-/* ---------------------------- */
-
 
 .form-signin input[type="email"] {
   margin-bottom: -1px;
@@ -66,6 +48,7 @@ body {
 
 #titulo{
   color: #f51f8c;
+  font-size: 25px;
 }
 
 .creditos{

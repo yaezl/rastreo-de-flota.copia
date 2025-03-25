@@ -29,6 +29,10 @@ body {
     border: 0px;
 }
 
+#salir a{
+    color: white;
+}
+
 #salir:hover{
     background-color: #a2145d;
 }

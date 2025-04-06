@@ -86,17 +86,7 @@ a{
     margin-bottom: 10px;
 }
 
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #b3a5a5;
-    border-radius: 4px;
-    background-color: #eeeef8;
-    color: rgb(0, 0, 0);
-    font-size: 20px;
-}
-
-.form-group select {
+.form-group input, .form-group select, .form-group textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #b3a5a5;

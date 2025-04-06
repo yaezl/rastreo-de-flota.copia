@@ -51,28 +51,28 @@ a{
     margin-top: 20px;
 }
 
-#conductoTable, #pasajeroTable {
+#conductoTable, #pasajeroTable, #vehiculoTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-#conductorTable th, #conductorTable td, #pasajeroTable th, #pasajeroTable td {
+#conductorTable th, #conductorTable td, #pasajeroTable th, #pasajeroTable td, #vehiculoTable th, #vehiculoTable td {
     border: 1px solid #b3a5a5;
     padding: 10px;
     text-align: left;
     color: white;
 }
 
-#conductorTable th, #pasajeroTable th {
+#conductorTable th, #pasajeroTable th, #vehiculoTable th {
     background-color: #0a0a0a;
 }
 
-#conductorTable tr:nth-child(even), #pasajeroTable tr:nth-child(even) {
+#conductorTable tr:nth-child(even), #pasajeroTable tr:nth-child(even), #vehiculoTable tr:nth-child(even) {
     background-color: #161617;
 }
 
-#conductorTable tr:hover, #pasajeroTable tr:hover {
+#conductorTable tr:hover, #pasajeroTable tr:hover, #vehiculoTable tr:hover {
     background-color: #2a2a2a;
 }
 

@@ -7,6 +7,7 @@
   <!-- CSS -->
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="../css/costume.css">
+  <link rel="stylesheet" href="../css/cruds.css">
   <!-- FONTS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +46,38 @@
   </div>
   <hr>
 
- 
+ <main>
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" id="busquedaVehiculo" placeholder="Buscar por patente o marca..." />
+      <button onclick="buscarVehiculo()">Buscar</button>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-primary">
+        <a href="/templates/cargarVehiculo.html">Agregar Vehiculo</a>
+      </button>
+    </div>
+    <h2>Vehículos Registrados:</h2>
+    <table id="vehiculoTable">
+      <thead>
+        <tr>
+          <th>Patente</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Combustible</th>
+          <th>Kilometraje</th>
+          <th>RTO</th>
+          <th>Equipamiento</th>
+          <th>Conductor Asignado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="vehiculoTableBody">
+        <!-- Los pasajeros se cargarán dinámicamente con JavaScript -->
+      </tbody>
+    </table>
+  </div>
+ </main>
 
 
   <!-- Footer -->

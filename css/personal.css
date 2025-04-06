@@ -20,7 +20,7 @@ a{
     text-decoration: none;
 }
 
-.btn {
+.btn,button{
     padding: 8px 10px;
     border: none;
     border-radius: 5px;
@@ -29,9 +29,9 @@ a{
     font-size: 100%;
 }
 
-.btn-primary {
+.btn-primary,button {
     background-color: #f51f8c;
-    color: rgb(63, 52, 52);
+    color: white;
 }
 
 .btn-outline {
@@ -40,8 +40,9 @@ a{
     color: white;
 }
 
-.btn:hover{
+.btn:hover, button:hover{
     background-color: #a2145d;
+    transition: 0.2s;
 }
 
 .actions {
@@ -50,28 +51,28 @@ a{
     margin-top: 20px;
 }
 
-#conductoTable {
+#conductoTable, #pasajeroTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-#conductorTable th, #conductorTable td {
+#conductorTable th, #conductorTable td, #pasajeroTable th, #pasajeroTable td {
     border: 1px solid #b3a5a5;
     padding: 10px;
     text-align: left;
     color: white;
 }
 
-#conductorTable th {
+#conductorTable th, #pasajeroTable th {
     background-color: #0a0a0a;
 }
 
-#conductorTable tr:nth-child(even) {
+#conductorTable tr:nth-child(even), #pasajeroTable tr:nth-child(even) {
     background-color: #161617;
 }
 
-#conductorTable tr:hover {
+#conductorTable tr:hover, #pasajeroTable tr:hover {
     background-color: #2a2a2a;
 }
 
@@ -88,6 +89,26 @@ a{
 .form-group input {
     width: 100%;
     padding: 10px;
+    border: 1px solid #b3a5a5;
+    border-radius: 4px;
+    background-color: #eeeef8;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #b3a5a5;
+    border-radius: 4px;
+    background-color: #eeeef8;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}
+
+.search-bar input{
+    width: 90%;
+    padding: 4px;
     border: 1px solid #b3a5a5;
     border-radius: 4px;
     background-color: #eeeef8;

@@ -49,6 +49,10 @@
   <main class="container">
 
     <div class="card">
+      <div class="search-bar">
+        <input type="text" id="busquedaConductor" placeholder="Buscar por DNI o nombre..." />
+        <button onclick="buscarConductor()">Buscar</button>
+      </div>
       <div class="actions">
         <button type="button" class="btn btn-primary">
           <a href="/templates/cargarConductor.html">Agregar Conductor</a>
@@ -64,10 +68,39 @@
             <th>Domicilio</th>
             <th>Fecha de vencimiento de Licencia</th>
             <th>Categoría de la Licencia</th>
+            <th>Vehículos Asignado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="conductorTableBody">
+          <!-- Los conductores se cargarán dinámicamente con JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="search-bar">
+        <input type="text" id="busquedaPasajero" placeholder="Buscar por DNI o nombre..." />
+        <button onclick="buscarPasajero()">Buscar</button>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary">
+          <a href="/templates/cargarPasajero.html">Agregar Pasajero</a>
+        </button>
+      </div>
+      <h2>Pasajeros Registrados:</h2>
+      <table id="pasajeroTable">
+        <thead>
+          <tr>
+            <th>DNI</th>
+            <th>Nombre Completo</th>
+            <th>Código Postal</th>
+            <th>Domicilio</th>
+            <th>Vehículo Asignado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="pasajeroTableBody">
           <!-- Los conductores se cargarán dinámicamente con JavaScript -->
         </tbody>
       </table>

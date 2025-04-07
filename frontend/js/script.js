@@ -543,10 +543,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   cargarPasajeros();
   cargarConductores(); 
   cargarPatentesVehiculos();
-  verificarEdicion();
-  /* cargarConductorParaEditar(dni);
+  const urlParams = new URLSearchParams(window.location.search);
+  const dni = urlParams.get('dni');
+  const patente = urlParams.get('patente');  
+  cargarConductorParaEditar(dni);
   cargarPasajeroParaEditar(dni);
-  cargarVehiculoParaEditar(patente); */
+  cargarVehiculoParaEditar(patente);
   
 
   // Botón de cerrar sesión

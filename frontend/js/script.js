@@ -174,7 +174,7 @@ async function cargarConductorParaEditar(dni) {
     document.getElementById('domicilio').value = data.domicilio;
     document.getElementById('vencimientoLic').value = data.vencimientoLic?.split('T')[0] || '';
     document.getElementById('categoriaLic').value = data.categoriaLic;
-    document.getElementById('vehiculo').value = data.vehiculoasignado || '';
+    document.getElementById('vehiculo').value = data.vehiculo || '';
   } catch (error) {
     console.error("Error al cargar conductor para editar:", error);
   }

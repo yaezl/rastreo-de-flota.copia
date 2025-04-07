@@ -61,7 +61,7 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
   return response.json();
 }
 
-// Función para manejar el inicio de sesión
+/* // Función para manejar el inicio de sesión
 async function iniciarSesion(event) {
   event.preventDefault();
   
@@ -89,7 +89,7 @@ function cerrarSesion() {
   localStorage.removeItem('user');
   window.location.href = 'logueo.html';
 }
-
+ */
 // GESTIÓN DE CONDUCTORES
 async function cargarConductores() {
   try {

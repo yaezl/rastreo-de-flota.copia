@@ -233,7 +233,7 @@ app.get('/api/vehiculos', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('vehiculos')
-      .select('*, conductores(nombreCompleto)');
+      .select('*, conductores(dni)');
     
     if (error) throw error;
     res.status(200).json(data);
@@ -248,7 +248,7 @@ app.get('/api/vehiculos/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('vehiculos')
-      .select('*, conductores(nombreCompleto)')
+      .select('*, conductores(dni)')
       .ilike('patente', `%${q}%`)
       .or(`marca.ilike.%${q}%`)
       .or(`modelo.ilike.%${q}%`);

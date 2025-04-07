@@ -23,10 +23,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Inicializar cliente de Supabase
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Faltan variables de entorno para Supabase');
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Rutas para la API
 

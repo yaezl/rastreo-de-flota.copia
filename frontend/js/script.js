@@ -90,6 +90,7 @@ function cerrarSesion() {
 async function cargarConductores() {
   try {
     const data = await fetchAPI('conductores');
+    console.log("Datos de conductores recibidos:", data); // Para depuración
     
     const tbody = document.getElementById('conductorTableBody');
     if (!tbody) return;
@@ -105,7 +106,7 @@ async function cargarConductores() {
         <td>${conductor.domicilio}</td>
         <td>${formatearFecha(conductor.vencimientoLic)}</td>
         <td>${conductor.categoriaLic}</td>
-        <td>${conductor.vehiculos?.patente || 'No asignado'}</td>
+        <td>${conductor.vehiculo?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarConductor('${conductor.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarConductor('${conductor.dni}')">Eliminar</button>
@@ -206,7 +207,7 @@ async function buscarConductor() {
         <td>${conductor.domicilio}</td>
         <td>${formatearFecha(conductor.vencimientoLic)}</td>
         <td>${conductor.categoriaLic}</td>
-        <td>${conductor.vehiculos?.patente || 'No asignado'}</td>
+        <td>${conductor.vehiculo?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarConductor('${conductor.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarConductor('${conductor.dni}')">Eliminar</button>
@@ -223,6 +224,7 @@ async function buscarConductor() {
 async function cargarPasajeros() {
   try {
     const data = await fetchAPI('pasajeros');
+    console.log("Datos de pasajeros recibidos:", data); // Para depuración
     
     const tbody = document.getElementById('pasajeroTableBody');
     if (!tbody) return;
@@ -236,7 +238,7 @@ async function cargarPasajeros() {
         <td>${pasajero.nombreCompleto}</td>
         <td>${pasajero.codigoPostal}</td>
         <td>${pasajero.domicilio}</td>
-        <td>${pasajero.vehiculos?.patente || 'No asignado'}</td>
+        <td>${pasajero.vehiculoasignado?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarPasajero('${pasajero.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarPasajero('${pasajero.dni}')">Eliminar</button>
@@ -331,7 +333,7 @@ async function buscarPasajero() {
         <td>${pasajero.nombreCompleto}</td>
         <td>${pasajero.codigoPostal}</td>
         <td>${pasajero.domicilio}</td>
-        <td>${pasajero.vehiculos?.patente || 'No asignado'}</td>
+        <td>${pasajero.vehiculoasignado?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarPasajero('${pasajero.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarPasajero('${pasajero.dni}')">Eliminar</button>
@@ -348,6 +350,7 @@ async function buscarPasajero() {
 async function cargarVehiculos() {
   try {
     const data = await fetchAPI('vehiculos');
+    console.log("Datos de vehículos recibidos:", data); // Para depuración
     
     const tbody = document.getElementById('vehiculoTableBody');
     if (!tbody) return;
@@ -526,40 +529,14 @@ function verificarEdicion() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
-  /* await inicializar(); */
-  
-  // Formulario de inicio de sesión
-  const loginForm = document.getElementById('Formulario');
-  if (loginForm) {
-    loginForm.addEventListener('submit', iniciarSesion);
-  }
+  // IMPORTANTE: Se descomenta esta línea para inicializar la aplicación
+  await inicializar();
   
   // Botón de cerrar sesión
   const logoutButton = document.getElementById('salir');
   if (logoutButton) {
     logoutButton.addEventListener('click', cerrarSesion);
   }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logout");
-  
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          alert("Error al cerrar sesión");
-          return;
-        }
-  
-        //  Limpiamos la verificación
-        localStorage.removeItem("verificado");
-  
-        // Redirigimos a logueo
-        window.location.href = "logueo.html";
-      });
-    }
-  });
-  
   
   // Formulario de conductor
   const conductorForm = document.getElementById('conductorForm');

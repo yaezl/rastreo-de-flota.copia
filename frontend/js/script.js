@@ -1,12 +1,12 @@
 const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com'; // tu endpoint real
-
+/*
 // Función para verificar si el usuario está autenticado
 function verificarAutenticacion() {
   token = localStorage.getItem('token');
   if (!token && !window.location.pathname.includes('logueo.html')) {
     window.location.href = 'logueo.html';
   }
-}
+}*/
 
 // Función para inicializar la aplicación cuando se cargue
 async function inicializar() {
@@ -66,7 +66,7 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
   }
 }
 
-// Función para manejar el inicio de sesión
+/*// Función para manejar el inicio de sesión
 async function iniciarSesion(event) {
   event.preventDefault();
   
@@ -93,7 +93,7 @@ function cerrarSesion() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   window.location.href = 'logueo.html';
-}
+}*/
 
 // GESTIÓN DE CONDUCTORES
 async function cargarConductores() {
@@ -548,6 +548,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (logoutButton) {
     logoutButton.addEventListener('click', cerrarSesion);
   }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logout");
+  
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          alert("Error al cerrar sesión");
+          return;
+        }
+  
+        // 🧽 Limpiamos la verificación
+        localStorage.removeItem("verificado");
+  
+        // Redirigimos a logueo
+        window.location.href = "logueo.html";
+      });
+    }
+  });
+  
   
   // Formulario de conductor
   const conductorForm = document.getElementById('conductorForm');

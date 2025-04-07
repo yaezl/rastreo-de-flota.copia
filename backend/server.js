@@ -31,7 +31,7 @@ const supabase = createClient(
 // Rutas para la API
 
 // Autenticación
-app.post('/api/auth/login', async (req, res) => {
+/* app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -44,14 +44,14 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-});
+}); */
 
 // Conductores
 app.get('/api/conductores', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('conductores')
-      .select('*, vehiculos(patente)');
+      .select('*, vehiculo(patente)');
     
     if (error) throw error;
     res.status(200).json(data);
@@ -66,7 +66,7 @@ app.get('/api/conductores/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('conductores')
-      .select('*, vehiculos(patente)')
+      .select('*, vehiculo(patente)')
       .ilike('nombreCompleto', `%${q}%`)
       .or(`dni.ilike.%${q}%`);
     
@@ -157,7 +157,7 @@ app.get('/api/pasajeros/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('pasajeros')
-      .select('*, vehiculos(patente)')
+      .select('*, vehiculoAsignado(patente)')
       .ilike('nombreCompleto', `%${q}%`)
       .or(`dni.ilike.%${q}%`);
     
@@ -233,7 +233,7 @@ app.get('/api/vehiculos', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('vehiculos')
-      .select('*, conductores(nombreCompleto)');
+      .select('*, conductores(dni)');
     
     if (error) throw error;
     res.status(200).json(data);
@@ -248,7 +248,7 @@ app.get('/api/vehiculos/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('vehiculos')
-      .select('*, conductores(nombreCompleto)')
+      .select('*, conductores(dni)')
       .ilike('patente', `%${q}%`)
       .or(`marca.ilike.%${q}%`)
       .or(`modelo.ilike.%${q}%`);

@@ -11,8 +11,8 @@ function verificarAutenticacion() {
 // Función para inicializar la aplicación cuando se cargue
 async function inicializar() {
   try {
-    verificarAutenticacion();
-    
+    /* verificarAutenticacion();
+     */
     // Cargar datos iniciales según la página actual
     const paginaActual = window.location.pathname;
     if (paginaActual.includes('personal.html')) {
@@ -38,10 +38,10 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     'Content-Type': 'application/json',
   };
   
-  if (token) {
+  /* if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  
+   */
   const options = {
     method,
     headers,
@@ -87,13 +87,13 @@ async function iniciarSesion(event) {
     console.error('Error de inicio de sesión:', error);
   }
 }
-
+*/
 // Función para cerrar sesión
 function cerrarSesion() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   window.location.href = 'logueo.html';
-}*/
+} 
 
 // GESTIÓN DE CONDUCTORES
 async function cargarConductores() {
@@ -535,7 +535,7 @@ function verificarEdicion() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
-  await inicializar();
+  /* await inicializar(); */
   
   // Formulario de inicio de sesión
   const loginForm = document.getElementById('Formulario');
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           return;
         }
   
-        // 🧽 Limpiamos la verificación
+        //  Limpiamos la verificación
         localStorage.removeItem("verificado");
   
         // Redirigimos a logueo

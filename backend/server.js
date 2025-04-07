@@ -28,6 +28,7 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
+
 // Rutas para la API
 
 // Autenticación
@@ -220,6 +221,10 @@ app.delete('/api/vehiculos/:patente', async (req, res) => {
 // Ruta para verificar el estado del servidor
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'Server is running' });
+});
+
+app.get('/', (req, res) => {
+  res.send('Servidor de rastreo de flotas funcionando 🚛📍');
 });
 
 // Iniciar el servidor

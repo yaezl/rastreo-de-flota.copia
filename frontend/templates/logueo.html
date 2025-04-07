@@ -16,8 +16,8 @@
       import { createClient } from 'https://esm.sh/@supabase/supabase-js'
   
       const supabase = createClient(
-        'https://TU_URL.supabase.co',
-        'TU_CLAVE_PUBLICA_SUPABASE'
+        'https://clrawvfedwpywhdcckok.supabase.co/',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNscmF3dmZlZHdweXdoZGNja29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Mjk4OTQsImV4cCI6MjA1OTEwNTg5NH0.Xheegka1x9BaGjHHJUrWLhdGY6yhPfRlzJd5_wfb13U'
       )
   
       let generatedCode = null
@@ -43,7 +43,7 @@
         emailjs.send('service_nz7d0e3', 'template_bgispc8', {
           to_email: email,
           otp: generatedCode
-        }, 'YOUR_PUBLIC_KEY')
+        }, 'Z-9x506U55yhP1flZ')
         .then(() => {
           const userCode = prompt("Te enviamos un código a tu correo. Ingresalo aquí:")
           if (parseInt(userCode) === generatedCode) {
@@ -96,7 +96,7 @@
       .then(() => {
         alert("Código enviado. Revisa tu correo.");
         // Redirigir a una página de verificación
-        window.location.href = "verificar-codigo.html";
+        window.location.href = "verificacion.html";
       })
       .catch((error) => {
         console.error("Error al enviar el correo:", error);

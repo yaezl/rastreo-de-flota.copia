@@ -121,6 +121,20 @@
 
 <script src="../js/script.js"></script>
 <script src="../js/bootstrap.js"></script>
+
+<script type="module">
+  import { supabase } from './script.js';
+
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'verificacion.html';
+    }
+  };
+
+  checkUser();
+</script>
+
 </body>
 
 </html>

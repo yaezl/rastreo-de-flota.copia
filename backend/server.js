@@ -335,19 +335,6 @@ app.delete('/api/vehiculos/:patente', async (req, res) => {
 });
 
 // Ruta para verificar el estado del servidor
-app.get('/api/test-connection', async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('pasajeros').select('count');
-    if (error) throw error;
-    res.status(200).json({ 
-      message: 'Connection successful', 
-      count: data[0]?.count || 0,
-      supabaseUrl: process.env.SUPABASE_URL.substring(0, 10) + '...' // Show partial URL for security
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'Server is running' });
 });

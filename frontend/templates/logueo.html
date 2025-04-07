@@ -40,7 +40,7 @@
         generatedCode = Math.floor(100000 + Math.random() * 900000)
   
         // Enviar correo con EmailJS
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+        emailjs.send('service_nz7d0e3', 'template_bgispc8', {
           to_email: email,
           otp: generatedCode
         }, 'YOUR_PUBLIC_KEY')
@@ -64,13 +64,51 @@
       })
     </script>
   
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-    <script>
-      (function(){
-        emailjs.init("YOUR_PUBLIC_KEY");
-      })();
-    </script>
+    <!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+  emailjs.init("Z-9x506U55yhP1flZ"); // Reemplazá con tu PUBLIC_KEY real
+</script>
+
+<script>
+  const formulario = document.getElementById("Formulario");
+
+  formulario.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const correo = document.getElementById("floatingInput").value;
+    const contraseña = document.getElementById("floatingPassword").value;
+
+    // CAMBIÁ ESTOS DATOS por los correctos de tu usuario
+    const correoPermitido = "supervisorgeobuild@gmail.com";
+    const contraseñaCorrecta = "geobuild123";
+
+    if (correo === correoPermitido && contraseña === contraseñaCorrecta) {
+      const codigo = Math.floor(100000 + Math.random() * 900000); // 6 dígitos
+
+      localStorage.setItem("codigo_verificacion", codigo);
+
+      // Enviar el email
+      emailjs.send("service_nz7d0e3", "template_bgispc8", {
+        otp: codigo,
+        email: correo, // si lo necesitás en la plantilla
+      })
+      .then(() => {
+        alert("Código enviado. Revisa tu correo.");
+        // Redirigir a una página de verificación
+        window.location.href = "verificar-codigo.html";
+      })
+      .catch((error) => {
+        console.error("Error al enviar el correo:", error);
+        alert("Ocurrió un error al enviar el correo.");
+      });
+
+    } else {
+      alert("Correo o contraseña incorrectos.");
+    }
+  });
+</script>
+
 </head>
 <body>
     <body class="d-flex align-items-center py-4 ">

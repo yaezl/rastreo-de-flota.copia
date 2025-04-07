@@ -138,8 +138,7 @@ app.listen(PORT, () => {
     console.log(`Servidor en ejecución en el puerto ${PORT}`);
 });
 
-
-//////////// NUEVO ///////////////
+//////// NUEVO //////
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');

@@ -1,4 +1,4 @@
-const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com/api'; // tu endpoint real
+const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com'; // tu endpoint real
 /*
 // Función para verificar si el usuario está autenticado
 function verificarAutenticacion() {

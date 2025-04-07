@@ -31,7 +31,7 @@ const supabase = createClient(
 // Rutas para la API
 
 // Autenticación
-app.post('/api/auth/login', async (req, res) => {
+/* app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -44,7 +44,7 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-});
+}); */
 
 // Conductores
 app.get('/api/conductores', async (req, res) => {
@@ -157,7 +157,7 @@ app.get('/api/pasajeros/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('pasajeros')
-      .select('*, vehiculos(patente)')
+      .select('*, vehiculoAsignado(patente)')
       .ilike('nombreCompleto', `%${q}%`)
       .or(`dni.ilike.%${q}%`);
     

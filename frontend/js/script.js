@@ -1,16 +1,20 @@
-// Configuración de Supabase
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const API_URL = 'https://nombre-de-tu-api.onrender.com'; // tu endpoint real
 
-// Inicializar cliente de Supabase (esto se cargará desde el servidor)
-let supabase;
+// No necesitamos inicializar Supabase en el cliente
+let token = null;
 
-// Función para inicializar Supabase cuando se cargue el script
-async function inicializarSupabase() {
+// Función para verificar si el usuario está autenticado
+function verificarAutenticacion() {
+  token = localStorage.getItem('token');
+  if (!token && !window.location.pathname.includes('logueo.html')) {
+    window.location.href = 'logueo.html';
+  }
+}
+
+// Función para inicializar la aplicación cuando se cargue
+async function inicializar() {
   try {
-    const { createClient } = supabaseJs;
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log("Supabase inicializado correctamente");
+    verificarAutenticacion();
     
     // Cargar datos iniciales según la página actual
     const paginaActual = window.location.pathname;
@@ -24,8 +28,37 @@ async function inicializarSupabase() {
       await cargarPatentesVehiculos();
     }
   } catch (error) {
-    console.error("Error al inicializar Supabase:", error);
+    console.error("Error al inicializar la aplicación:", error);
   }
+}
+
+// Función para hacer solicitudes a la API
+async function fetchAPI(endpoint, method = 'GET', body = null) {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const options = {
+    method,
+    headers,
+  };
+  
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+  
+  const response = await fetch(`${API_URL}/${endpoint}`, options);
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Error en la solicitud');
+  }
+  
+  return response.json();
 }
 
 // Función para manejar el inicio de sesión
@@ -36,15 +69,10 @@ async function iniciarSesion(event) {
   const password = document.getElementById('floatingPassword').value;
   
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-    
-    if (error) throw error;
+    const data = await fetchAPI('auth/login', 'POST', { email, password });
     
     // Guardar token de sesión
-    localStorage.setItem('token', data.session.access_token);
+    localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     
     // Redirigir al dashboard
@@ -65,11 +93,7 @@ function cerrarSesion() {
 // GESTIÓN DE CONDUCTORES
 async function cargarConductores() {
   try {
-    const { data, error } = await supabase
-      .from('conductores')
-      .select('*, vehiculos(patente)');
-    
-    if (error) throw error;
+    const data = await fetchAPI('conductores');
     
     const tbody = document.getElementById('conductorTableBody');
     if (!tbody) return;
@@ -85,7 +109,7 @@ async function cargarConductores() {
         <td>${conductor.domicilio}</td>
         <td>${formatearFecha(conductor.vencimientoLic)}</td>
         <td>${conductor.categoriaLic}</td>
-        <td>${conductor.vehiculos ? conductor.vehiculos.patente : 'No asignado'}</td>
+        <td>${conductor.vehiculo_patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarConductor('${conductor.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarConductor('${conductor.dni}')">Eliminar</button>
@@ -113,11 +137,7 @@ async function guardarConductor(event) {
   };
   
   try {
-    const { error } = await supabase
-      .from('conductores')
-      .upsert([conductor]);
-    
-    if (error) throw error;
+    await fetchAPI(`conductores/${conductor.dni}`, 'PUT', conductor);
     
     alert('Conductor guardado correctamente');
     window.location.href = 'personal.html';
@@ -133,13 +153,7 @@ async function editarConductor(dni) {
 
 async function cargarConductorParaEditar(dni) {
   try {
-    const { data, error } = await supabase
-      .from('conductores')
-      .select('*')
-      .eq('dni', dni)
-      .single();
-    
-    if (error) throw error;
+    const data = await fetchAPI(`conductores/${dni}`);
     
     document.getElementById('dni').value = data.dni;
     document.getElementById('nombreCompleto').value = data.nombreCompleto;
@@ -157,12 +171,7 @@ async function eliminarConductor(dni) {
   if (!confirm('¿Está seguro de eliminar este conductor?')) return;
   
   try {
-    const { error } = await supabase
-      .from('conductores')
-      .delete()
-      .eq('dni', dni);
-    
-    if (error) throw error;
+    await fetchAPI(`conductores/${dni}`, 'DELETE');
     
     alert('Conductor eliminado correctamente');
     await cargarConductores();
@@ -176,15 +185,7 @@ async function buscarConductor() {
   const busqueda = document.getElementById('busquedaConductor').value.toLowerCase();
   
   try {
-    let query = supabase.from('conductores').select('*, vehiculos(patente)');
-    
-    if (busqueda) {
-      query = query.or(`dni.ilike.%${busqueda}%,nombreCompleto.ilike.%${busqueda}%`);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) throw error;
+    const data = await fetchAPI(`conductores/buscar?q=${busqueda}`);
     
     const tbody = document.getElementById('conductorTableBody');
     tbody.innerHTML = '';
@@ -198,7 +199,7 @@ async function buscarConductor() {
         <td>${conductor.domicilio}</td>
         <td>${formatearFecha(conductor.vencimientoLic)}</td>
         <td>${conductor.categoriaLic}</td>
-        <td>${conductor.vehiculos ? conductor.vehiculos.patente : 'No asignado'}</td>
+        <td>${conductor.vehiculo_patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarConductor('${conductor.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarConductor('${conductor.dni}')">Eliminar</button>
@@ -214,11 +215,7 @@ async function buscarConductor() {
 // GESTIÓN DE PASAJEROS
 async function cargarPasajeros() {
   try {
-    const { data, error } = await supabase
-      .from('pasajeros')
-      .select('*, vehiculos(patente)');
-    
-    if (error) throw error;
+    const data = await fetchAPI('pasajeros');
     
     const tbody = document.getElementById('pasajeroTableBody');
     if (!tbody) return;
@@ -232,7 +229,7 @@ async function cargarPasajeros() {
         <td>${pasajero.nombreCompleto}</td>
         <td>${pasajero.codigoPostal}</td>
         <td>${pasajero.domicilio}</td>
-        <td>${pasajero.vehiculos ? pasajero.vehiculos.patente : 'No asignado'}</td>
+        <td>${pasajero.vehiculo_patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarPasajero('${pasajero.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarPasajero('${pasajero.dni}')">Eliminar</button>
@@ -258,11 +255,7 @@ async function guardarPasajero(event) {
   };
   
   try {
-    const { error } = await supabase
-      .from('pasajeros')
-      .upsert([pasajero]);
-    
-    if (error) throw error;
+    await fetchAPI(`pasajeros/${pasajero.dni}`, 'PUT', pasajero);
     
     alert('Pasajero guardado correctamente');
     window.location.href = 'personal.html';
@@ -278,13 +271,7 @@ async function editarPasajero(dni) {
 
 async function cargarPasajeroParaEditar(dni) {
   try {
-    const { data, error } = await supabase
-      .from('pasajeros')
-      .select('*')
-      .eq('dni', dni)
-      .single();
-    
-    if (error) throw error;
+    const data = await fetchAPI(`pasajeros/${dni}`);
     
     document.getElementById('dni').value = data.dni;
     document.getElementById('nombreCompleto').value = data.nombreCompleto;
@@ -300,12 +287,7 @@ async function eliminarPasajero(dni) {
   if (!confirm('¿Está seguro de eliminar este pasajero?')) return;
   
   try {
-    const { error } = await supabase
-      .from('pasajeros')
-      .delete()
-      .eq('dni', dni);
-    
-    if (error) throw error;
+    await fetchAPI(`pasajeros/${dni}`, 'DELETE');
     
     alert('Pasajero eliminado correctamente');
     await cargarPasajeros();
@@ -319,15 +301,7 @@ async function buscarPasajero() {
   const busqueda = document.getElementById('busquedaPasajero').value.toLowerCase();
   
   try {
-    let query = supabase.from('pasajeros').select('*, vehiculos(patente)');
-    
-    if (busqueda) {
-      query = query.or(`dni.ilike.%${busqueda}%,nombreCompleto.ilike.%${busqueda}%`);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) throw error;
+    const data = await fetchAPI(`pasajeros/buscar?q=${busqueda}`);
     
     const tbody = document.getElementById('pasajeroTableBody');
     tbody.innerHTML = '';
@@ -339,7 +313,7 @@ async function buscarPasajero() {
         <td>${pasajero.nombreCompleto}</td>
         <td>${pasajero.codigoPostal}</td>
         <td>${pasajero.domicilio}</td>
-        <td>${pasajero.vehiculos ? pasajero.vehiculos.patente : 'No asignado'}</td>
+        <td>${pasajero.vehiculo_patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarPasajero('${pasajero.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarPasajero('${pasajero.dni}')">Eliminar</button>
@@ -355,11 +329,7 @@ async function buscarPasajero() {
 // GESTIÓN DE VEHÍCULOS
 async function cargarVehiculos() {
   try {
-    const { data, error } = await supabase
-      .from('vehiculos')
-      .select('*, conductores(nombreCompleto)');
-    
-    if (error) throw error;
+    const data = await fetchAPI('vehiculos');
     
     const tbody = document.getElementById('vehiculoTableBody');
     if (!tbody) return;
@@ -376,7 +346,7 @@ async function cargarVehiculos() {
         <td>${vehiculo.kilometraje}</td>
         <td>${formatearFecha(vehiculo.rto)}</td>
         <td>${vehiculo.equipamiento}</td>
-        <td>${vehiculo.conductores ? vehiculo.conductores.nombreCompleto : 'No asignado'}</td>
+        <td>${vehiculo.conductor_nombre || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarVehiculo('${vehiculo.patente}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${vehiculo.patente}')">Eliminar</button>
@@ -404,11 +374,7 @@ async function guardarVehiculo(event) {
   };
   
   try {
-    const { error } = await supabase
-      .from('vehiculos')
-      .upsert([vehiculo]);
-    
-    if (error) throw error;
+    await fetchAPI(`vehiculos/${vehiculo.patente}`, 'PUT', vehiculo);
     
     alert('Vehículo guardado correctamente');
     window.location.href = 'vehiculos.html';
@@ -424,13 +390,7 @@ async function editarVehiculo(patente) {
 
 async function cargarVehiculoParaEditar(patente) {
   try {
-    const { data, error } = await supabase
-      .from('vehiculos')
-      .select('*')
-      .eq('patente', patente)
-      .single();
-    
-    if (error) throw error;
+    const data = await fetchAPI(`vehiculos/${patente}`);
     
     document.getElementById('patente').value = data.patente;
     document.getElementById('marca').value = data.marca;
@@ -448,12 +408,7 @@ async function eliminarVehiculo(patente) {
   if (!confirm('¿Está seguro de eliminar este vehículo?')) return;
   
   try {
-    const { error } = await supabase
-      .from('vehiculos')
-      .delete()
-      .eq('patente', patente);
-    
-    if (error) throw error;
+    await fetchAPI(`vehiculos/${patente}`, 'DELETE');
     
     alert('Vehículo eliminado correctamente');
     await cargarVehiculos();
@@ -467,15 +422,7 @@ async function buscarVehiculo() {
   const busqueda = document.getElementById('busquedaVehiculo').value.toLowerCase();
   
   try {
-    let query = supabase.from('vehiculos').select('*, conductores(nombreCompleto)');
-    
-    if (busqueda) {
-      query = query.or(`patente.ilike.%${busqueda}%,marca.ilike.%${busqueda}%,modelo.ilike.%${busqueda}%`);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) throw error;
+    const data = await fetchAPI(`vehiculos/buscar?q=${busqueda}`);
     
     const tbody = document.getElementById('vehiculoTableBody');
     tbody.innerHTML = '';
@@ -490,7 +437,7 @@ async function buscarVehiculo() {
         <td>${vehiculo.kilometraje}</td>
         <td>${formatearFecha(vehiculo.rto)}</td>
         <td>${vehiculo.equipamiento}</td>
-        <td>${vehiculo.conductores ? vehiculo.conductores.nombreCompleto : 'No asignado'}</td>
+        <td>${vehiculo.conductor_nombre || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarVehiculo('${vehiculo.patente}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${vehiculo.patente}')">Eliminar</button>
@@ -506,11 +453,7 @@ async function buscarVehiculo() {
 // FUNCIONES AUXILIARES
 async function cargarPatentesVehiculos() {
   try {
-    const { data, error } = await supabase
-      .from('vehiculos')
-      .select('patente, id');
-    
-    if (error) throw error;
+    const data = await fetchAPI('vehiculos/patentes');
     
     const selectVehiculo = document.getElementById('vehiculo');
     if (!selectVehiculo) return;
@@ -554,8 +497,7 @@ function verificarEdicion() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
-  await inicializarSupabase();
-  verificarEdicion();
+  await inicializar();
   
   // Formulario de inicio de sesión
   const loginForm = document.getElementById('Formulario');
@@ -586,4 +528,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (vehiculoForm) {
     vehiculoForm.addEventListener('submit', guardarVehiculo);
   }
-})
+});

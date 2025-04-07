@@ -142,7 +142,7 @@ app.get('/api/pasajeros', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('pasajeros')
-      .select('*, vehiculoAsignado(patente)');
+      .select('*, vehiculoasignado(patente)');
     
     if (error) throw error;
     res.status(200).json(data);
@@ -157,7 +157,7 @@ app.get('/api/pasajeros/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('pasajeros')
-      .select('*, vehiculoAsignado(patente)')
+      .select('*, vehiculoasignado(patente)')
       .ilike('nombreCompleto', `%${q}%`)
       .or(`dni.ilike.%${q}%`);
     

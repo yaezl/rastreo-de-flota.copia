@@ -8,9 +8,69 @@
     <link rel="stylesheet" href="../css/sign-in.css">
     <link rel="shortcut icon" href="../img/lampara-de-techo.png" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
     <title>Inicio de sesión</title>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+  
+      const supabase = createClient(
+        'https://TU_URL.supabase.co',
+        'TU_CLAVE_PUBLICA_SUPABASE'
+      )
+  
+      let generatedCode = null
+      let userEmail = ""
+  
+      async function login(event) {
+        event.preventDefault()
+  
+        const email = document.getElementById('floatingInput').value
+        const password = document.getElementById('floatingPassword').value
+  
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          alert('Correo o contraseña incorrectos.')
+          return
+        }
+  
+        // Guardamos email y generamos código
+        userEmail = email
+        generatedCode = Math.floor(100000 + Math.random() * 900000)
+  
+        // Enviar correo con EmailJS
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+          to_email: email,
+          otp: generatedCode
+        }, 'YOUR_PUBLIC_KEY')
+        .then(() => {
+          const userCode = prompt("Te enviamos un código a tu correo. Ingresalo aquí:")
+          if (parseInt(userCode) === generatedCode) {
+            alert("¡Código correcto!")
+            window.location.href = "index.html" // o dashboard.html
+          } else {
+            alert("Código incorrecto.")
+          }
+        })
+        .catch(err => {
+          alert("Error enviando el correo: " + err)
+        })
+      }
+  
+      window.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('Formulario')
+        form.addEventListener('submit', login)
+      })
+    </script>
+  
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+      (function(){
+        emailjs.init("YOUR_PUBLIC_KEY");
+      })();
+    </script>
 </head>
 <body>
     <body class="d-flex align-items-center py-4 ">
@@ -35,9 +95,7 @@
           <label for="floatingPassword">Contraseña</label>
         </div>
     
-        <button class="btn btn-primary w-100 py-2 fw-bold" type="submit" id="confirmar">
-            <a href="index.html" class="nav-link px-2">Confirmar</a>
-        </button>
+        <button class="btn btn-primary w-100 py-2 fw-bold" type="submit" id="confirmar">Confirmar</button>
 
         <!-- DERECHOS DE AUTOR -->
         <p class="creditos">&copy; 2025 Desarrollo de Software</p>

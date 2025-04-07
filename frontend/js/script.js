@@ -1,8 +1,5 @@
 const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com'; // tu endpoint real
 
-// No necesitamos inicializar Supabase en el cliente
-let token = null;
-
 // Función para verificar si el usuario está autenticado
 function verificarAutenticacion() {
   token = localStorage.getItem('token');
@@ -26,6 +23,9 @@ async function inicializar() {
     } else if (paginaActual.includes('cargarConductor.html') || 
                paginaActual.includes('cargarPasajero.html')) {
       await cargarPatentesVehiculos();
+      verificarEdicion();
+    } else if (paginaActual.includes('cargarVehiculo.html')) {
+      verificarEdicion();
     }
   } catch (error) {
     console.error("Error al inicializar la aplicación:", error);
@@ -51,17 +51,22 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     options.body = JSON.stringify(body);
   }
   
-  const response = await fetch(`${API_URL}/${endpoint}`, options);
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Error en la solicitud');
+  try {
+    const response = await fetch(`${API_URL}/api/${endpoint}`, options);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error en la solicitud');
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error(`Error en fetchAPI (${endpoint}):`, error);
+    throw error;
   }
-  
-  return response.json();
 }
 
-/* // Función para manejar el inicio de sesión
+// Función para manejar el inicio de sesión
 async function iniciarSesion(event) {
   event.preventDefault();
   
@@ -72,7 +77,7 @@ async function iniciarSesion(event) {
     const data = await fetchAPI('auth/login', 'POST', { email, password });
     
     // Guardar token de sesión
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('token', data.session?.access_token);
     localStorage.setItem('user', JSON.stringify(data.user));
     
     // Redirigir al dashboard
@@ -89,7 +94,7 @@ function cerrarSesion() {
   localStorage.removeItem('user');
   window.location.href = 'logueo.html';
 }
- */
+
 // GESTIÓN DE CONDUCTORES
 async function cargarConductores() {
   try {
@@ -109,7 +114,7 @@ async function cargarConductores() {
         <td>${conductor.domicilio}</td>
         <td>${formatearFecha(conductor.vencimientoLic)}</td>
         <td>${conductor.categoriaLic}</td>
-        <td>${conductor.vehiculo_patente || 'No asignado'}</td>
+        <td>${conductor.vehiculos?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarConductor('${conductor.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarConductor('${conductor.dni}')">Eliminar</button>
@@ -137,7 +142,12 @@ async function guardarConductor(event) {
   };
   
   try {
-    await fetchAPI(`conductores/${conductor.dni}`, 'PUT', conductor);
+    const isNew = !window.location.search.includes('dni=');
+    if (isNew) {
+      await fetchAPI('conductores', 'POST', conductor);
+    } else {
+      await fetchAPI(`conductores/${conductor.dni}`, 'PUT', conductor);
+    }
     
     alert('Conductor guardado correctamente');
     window.location.href = 'personal.html';
@@ -156,10 +166,11 @@ async function cargarConductorParaEditar(dni) {
     const data = await fetchAPI(`conductores/${dni}`);
     
     document.getElementById('dni').value = data.dni;
+    document.getElementById('dni').readOnly = true; // No permitir editar el DNI
     document.getElementById('nombreCompleto').value = data.nombreCompleto;
     document.getElementById('codigoPostal').value = data.codigoPostal;
     document.getElementById('domicilio').value = data.domicilio;
-    document.getElementById('vencimientoLic').value = data.vencimientoLic;
+    document.getElementById('vencimientoLic').value = data.vencimientoLic?.split('T')[0] || '';
     document.getElementById('categoriaLic').value = data.categoriaLic;
     document.getElementById('vehiculo').value = data.vehiculo_id || '';
   } catch (error) {
@@ -182,10 +193,15 @@ async function eliminarConductor(dni) {
 }
 
 async function buscarConductor() {
-  const busqueda = document.getElementById('busquedaConductor').value.toLowerCase();
+  const busqueda = document.getElementById('busquedaConductor').value.trim();
   
   try {
-    const data = await fetchAPI(`conductores/buscar?q=${busqueda}`);
+    let data;
+    if (busqueda) {
+      data = await fetchAPI(`conductores/buscar?q=${busqueda}`);
+    } else {
+      data = await fetchAPI('conductores');
+    }
     
     const tbody = document.getElementById('conductorTableBody');
     tbody.innerHTML = '';
@@ -199,7 +215,7 @@ async function buscarConductor() {
         <td>${conductor.domicilio}</td>
         <td>${formatearFecha(conductor.vencimientoLic)}</td>
         <td>${conductor.categoriaLic}</td>
-        <td>${conductor.vehiculo_patente || 'No asignado'}</td>
+        <td>${conductor.vehiculos?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarConductor('${conductor.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarConductor('${conductor.dni}')">Eliminar</button>
@@ -229,7 +245,7 @@ async function cargarPasajeros() {
         <td>${pasajero.nombreCompleto}</td>
         <td>${pasajero.codigoPostal}</td>
         <td>${pasajero.domicilio}</td>
-        <td>${pasajero.vehiculo_patente || 'No asignado'}</td>
+        <td>${pasajero.vehiculos?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarPasajero('${pasajero.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarPasajero('${pasajero.dni}')">Eliminar</button>
@@ -255,7 +271,12 @@ async function guardarPasajero(event) {
   };
   
   try {
-    await fetchAPI(`pasajeros/${pasajero.dni}`, 'PUT', pasajero);
+    const isNew = !window.location.search.includes('dni=');
+    if (isNew) {
+      await fetchAPI('pasajeros', 'POST', pasajero);
+    } else {
+      await fetchAPI(`pasajeros/${pasajero.dni}`, 'PUT', pasajero);
+    }
     
     alert('Pasajero guardado correctamente');
     window.location.href = 'personal.html';
@@ -274,6 +295,7 @@ async function cargarPasajeroParaEditar(dni) {
     const data = await fetchAPI(`pasajeros/${dni}`);
     
     document.getElementById('dni').value = data.dni;
+    document.getElementById('dni').readOnly = true; // No permitir editar el DNI
     document.getElementById('nombreCompleto').value = data.nombreCompleto;
     document.getElementById('codigoPostal').value = data.codigoPostal;
     document.getElementById('domicilio').value = data.domicilio;
@@ -298,10 +320,15 @@ async function eliminarPasajero(dni) {
 }
 
 async function buscarPasajero() {
-  const busqueda = document.getElementById('busquedaPasajero').value.toLowerCase();
+  const busqueda = document.getElementById('busquedaPasajero').value.trim();
   
   try {
-    const data = await fetchAPI(`pasajeros/buscar?q=${busqueda}`);
+    let data;
+    if (busqueda) {
+      data = await fetchAPI(`pasajeros/buscar?q=${busqueda}`);
+    } else {
+      data = await fetchAPI('pasajeros');
+    }
     
     const tbody = document.getElementById('pasajeroTableBody');
     tbody.innerHTML = '';
@@ -313,7 +340,7 @@ async function buscarPasajero() {
         <td>${pasajero.nombreCompleto}</td>
         <td>${pasajero.codigoPostal}</td>
         <td>${pasajero.domicilio}</td>
-        <td>${pasajero.vehiculo_patente || 'No asignado'}</td>
+        <td>${pasajero.vehiculos?.patente || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarPasajero('${pasajero.dni}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarPasajero('${pasajero.dni}')">Eliminar</button>
@@ -346,7 +373,7 @@ async function cargarVehiculos() {
         <td>${vehiculo.kilometraje}</td>
         <td>${formatearFecha(vehiculo.rto)}</td>
         <td>${vehiculo.equipamiento}</td>
-        <td>${vehiculo.conductor_nombre || 'No asignado'}</td>
+        <td>${vehiculo.conductores?.nombreCompleto || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarVehiculo('${vehiculo.patente}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${vehiculo.patente}')">Eliminar</button>
@@ -368,13 +395,18 @@ async function guardarVehiculo(event) {
     marca: formData.get('marca'),
     modelo: formData.get('modelo'),
     combustible: formData.get('combustible'),
-    kilometraje: formData.get('kilometraje'),
+    kilometraje: Number(formData.get('kilometraje')),
     rto: formData.get('rto'),
     equipamiento: formData.get('equipamiento')
   };
   
   try {
-    await fetchAPI(`vehiculos/${vehiculo.patente}`, 'PUT', vehiculo);
+    const isNew = !window.location.search.includes('patente=');
+    if (isNew) {
+      await fetchAPI('vehiculos', 'POST', vehiculo);
+    } else {
+      await fetchAPI(`vehiculos/${vehiculo.patente}`, 'PUT', vehiculo);
+    }
     
     alert('Vehículo guardado correctamente');
     window.location.href = 'vehiculos.html';
@@ -393,11 +425,12 @@ async function cargarVehiculoParaEditar(patente) {
     const data = await fetchAPI(`vehiculos/${patente}`);
     
     document.getElementById('patente').value = data.patente;
+    document.getElementById('patente').readOnly = true; // No permitir editar la patente
     document.getElementById('marca').value = data.marca;
     document.getElementById('modelo').value = data.modelo;
     document.getElementById('combustible').value = data.combustible;
     document.getElementById('kilometraje').value = data.kilometraje;
-    document.getElementById('rto').value = data.rto;
+    document.getElementById('rto').value = data.rto?.split('T')[0] || '';
     document.getElementById('equipamiento').value = data.equipamiento;
   } catch (error) {
     console.error("Error al cargar vehículo para editar:", error);
@@ -419,10 +452,15 @@ async function eliminarVehiculo(patente) {
 }
 
 async function buscarVehiculo() {
-  const busqueda = document.getElementById('busquedaVehiculo').value.toLowerCase();
+  const busqueda = document.getElementById('busquedaVehiculo').value.trim();
   
   try {
-    const data = await fetchAPI(`vehiculos/buscar?q=${busqueda}`);
+    let data;
+    if (busqueda) {
+      data = await fetchAPI(`vehiculos/buscar?q=${busqueda}`);
+    } else {
+      data = await fetchAPI('vehiculos');
+    }
     
     const tbody = document.getElementById('vehiculoTableBody');
     tbody.innerHTML = '';
@@ -437,7 +475,7 @@ async function buscarVehiculo() {
         <td>${vehiculo.kilometraje}</td>
         <td>${formatearFecha(vehiculo.rto)}</td>
         <td>${vehiculo.equipamiento}</td>
-        <td>${vehiculo.conductor_nombre || 'No asignado'}</td>
+        <td>${vehiculo.conductores?.nombreCompleto || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarVehiculo('${vehiculo.patente}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${vehiculo.patente}')">Eliminar</button>
@@ -527,5 +565,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   const vehiculoForm = document.getElementById('vehiculoForm');
   if (vehiculoForm) {
     vehiculoForm.addEventListener('submit', guardarVehiculo);
+  }
+  
+  // Botones de búsqueda
+  const busquedaConductorInput = document.getElementById('busquedaConductor');
+  if (busquedaConductorInput) {
+    document.getElementById('btnBuscarConductor').addEventListener('click', buscarConductor);
+    busquedaConductorInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        buscarConductor();
+      }
+    });
+  }
+  
+  const busquedaPasajeroInput = document.getElementById('busquedaPasajero');
+  if (busquedaPasajeroInput) {
+    document.getElementById('btnBuscarPasajero').addEventListener('click', buscarPasajero);
+    busquedaPasajeroInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        buscarPasajero();
+      }
+    });
+  }
+  
+  const busquedaVehiculoInput = document.getElementById('busquedaVehiculo');
+  if (busquedaVehiculoInput) {
+    document.getElementById('btnBuscarVehiculo').addEventListener('click', buscarVehiculo);
+    busquedaVehiculoInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        buscarVehiculo();
+      }
+    });
   }
 });

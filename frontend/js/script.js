@@ -543,6 +543,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   cargarPasajeros();
   cargarConductores(); 
   cargarPatentesVehiculos();
+  editarConductor(dni);
+  editarPasajero(dni);
+  editarVehiculo(patente);
 
   // Botón de cerrar sesión
   const logoutButton = document.getElementById('salir');

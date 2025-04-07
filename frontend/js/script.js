@@ -1,4 +1,4 @@
-const API_URL = 'https://nombre-de-tu-api.onrender.com'; // tu endpoint real
+const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com'; // tu endpoint real
 
 // No necesitamos inicializar Supabase en el cliente
 let token = null;

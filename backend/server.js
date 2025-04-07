@@ -51,7 +51,7 @@ app.get('/api/conductores', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('conductores')
-      .select('*, vehiculos(patente)');
+      .select('*, vehiculo(patente)');
     
     if (error) throw error;
     res.status(200).json(data);
@@ -66,7 +66,7 @@ app.get('/api/conductores/buscar', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('conductores')
-      .select('*, vehiculos(patente)')
+      .select('*, vehiculo(patente)')
       .ilike('nombreCompleto', `%${q}%`)
       .or(`dni.ilike.%${q}%`);
     

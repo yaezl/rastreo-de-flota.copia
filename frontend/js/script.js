@@ -35,6 +35,9 @@ async function inicializar() {
 // Función para hacer solicitudes a la API
 async function fetchAPI(endpoint, method = 'GET', data = null) {
   try {
+    console.log(`Realizando ${method} a ${API_URL}/${endpoint}`);
+    if (data) console.log('Con datos:', data);
+    
     const options = {
       method,
       headers: {
@@ -47,10 +50,17 @@ async function fetchAPI(endpoint, method = 'GET', data = null) {
     }
     
     const response = await fetch(`${API_URL}/${endpoint}`, options);
+    console.log(`Respuesta status: ${response.status}`);
+    
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
     }
-    return await response.json();
+    
+    const responseData = await response.json();
+    console.log('Datos recibidos:', responseData);
+    return responseData;
   } catch (error) {
     console.error(`Error en fetchAPI (${endpoint}):`, error);
     throw error;

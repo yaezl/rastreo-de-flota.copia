@@ -539,6 +539,9 @@ function verificarEdicion() {
 document.addEventListener('DOMContentLoaded', async () => {
   // IMPORTANTE: Se descomenta esta línea para inicializar la aplicación
   await inicializar();
+  cargarVehiculos();
+  cargarPasajeros();
+  cargarConductores(); 
   
   // Botón de cerrar sesión
   const logoutButton = document.getElementById('salir');

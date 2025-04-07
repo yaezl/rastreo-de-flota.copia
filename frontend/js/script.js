@@ -33,33 +33,24 @@ async function inicializar() {
 }
 
 // Función para hacer solicitudes a la API
-async function fetchAPI(endpoint, method = 'GET', body = null) {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  
-  /* if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-   */
-  const options = {
-    method,
-    headers,
-  };
-  
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-  
+async function fetchAPI(endpoint, method = 'GET', data = null) {
   try {
-    const response = await fetch(`${API_URL}/api/${endpoint}`, options);
+    const options = {
+      method,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Error en la solicitud');
+    if (data && (method === 'POST' || method === 'PUT')) {
+      options.body = JSON.stringify(data);
     }
     
-    return response.json();
+    const response = await fetch(`${API_URL}/${endpoint}`, options);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
   } catch (error) {
     console.error(`Error en fetchAPI (${endpoint}):`, error);
     throw error;

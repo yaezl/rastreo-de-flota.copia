@@ -28,7 +28,6 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
-
 // Rutas para la API
 
 // Autenticación
@@ -53,6 +52,40 @@ app.get('/api/conductores', async (req, res) => {
     const { data, error } = await supabase
       .from('conductores')
       .select('*, vehiculos(patente)');
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Búsqueda de conductores
+app.get('/api/conductores/buscar', async (req, res) => {
+  const { q } = req.query;
+  try {
+    const { data, error } = await supabase
+      .from('conductores')
+      .select('*, vehiculos(patente)')
+      .ilike('nombreCompleto', `%${q}%`)
+      .or(`dni.ilike.%${q}%`);
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener un conductor específico
+app.get('/api/conductores/:dni', async (req, res) => {
+  const { dni } = req.params;
+  try {
+    const { data, error } = await supabase
+      .from('conductores')
+      .select('*')
+      .eq('dni', dni)
+      .single();
     
     if (error) throw error;
     res.status(200).json(data);
@@ -118,6 +151,40 @@ app.get('/api/pasajeros', async (req, res) => {
   }
 });
 
+// Búsqueda de pasajeros
+app.get('/api/pasajeros/buscar', async (req, res) => {
+  const { q } = req.query;
+  try {
+    const { data, error } = await supabase
+      .from('pasajeros')
+      .select('*, vehiculos(patente)')
+      .ilike('nombreCompleto', `%${q}%`)
+      .or(`dni.ilike.%${q}%`);
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener un pasajero específico
+app.get('/api/pasajeros/:dni', async (req, res) => {
+  const { dni } = req.params;
+  try {
+    const { data, error } = await supabase
+      .from('pasajeros')
+      .select('*')
+      .eq('dni', dni)
+      .single();
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/pasajeros', async (req, res) => {
   try {
     const { error } = await supabase
@@ -167,6 +234,55 @@ app.get('/api/vehiculos', async (req, res) => {
     const { data, error } = await supabase
       .from('vehiculos')
       .select('*, conductores(nombreCompleto)');
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Búsqueda de vehículos
+app.get('/api/vehiculos/buscar', async (req, res) => {
+  const { q } = req.query;
+  try {
+    const { data, error } = await supabase
+      .from('vehiculos')
+      .select('*, conductores(nombreCompleto)')
+      .ilike('patente', `%${q}%`)
+      .or(`marca.ilike.%${q}%`)
+      .or(`modelo.ilike.%${q}%`);
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener listado de patentes para selects
+app.get('/api/vehiculos/patentes', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('vehiculos')
+      .select('id, patente');
+    
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener un vehículo específico
+app.get('/api/vehiculos/:patente', async (req, res) => {
+  const { patente } = req.params;
+  try {
+    const { data, error } = await supabase
+      .from('vehiculos')
+      .select('*')
+      .eq('patente', patente)
+      .single();
     
     if (error) throw error;
     res.status(200).json(data);

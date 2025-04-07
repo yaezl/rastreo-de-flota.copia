@@ -140,7 +140,7 @@ async function guardarConductor(event) {
     domicilio: formData.get('domicilio'),
     vencimientoLic: formData.get('vencimientoLic'),
     categoriaLic: formData.get('categoriaLic'),
-    vehiculo_id: formData.get('vehiculo')
+    vehiculo: formData.get('vehiculo')
   };
   
   try {
@@ -174,7 +174,7 @@ async function cargarConductorParaEditar(dni) {
     document.getElementById('domicilio').value = data.domicilio;
     document.getElementById('vencimientoLic').value = data.vencimientoLic?.split('T')[0] || '';
     document.getElementById('categoriaLic').value = data.categoriaLic;
-    document.getElementById('vehiculo').value = data.vehiculo_id || '';
+    document.getElementById('vehiculo').value = data.vehiculoasignado || '';
   } catch (error) {
     console.error("Error al cargar conductor para editar:", error);
   }
@@ -270,7 +270,7 @@ async function guardarPasajero(event) {
     nombreCompleto: formData.get('nombreCompleto'),
     codigoPostal: formData.get('codigoPostal'),
     domicilio: formData.get('domicilio'),
-    vehiculo_id: formData.get('vehiculo')
+    vehiculoasignado: formData.get('vehiculoasignado')
   };
   
   try {
@@ -302,7 +302,7 @@ async function cargarPasajeroParaEditar(dni) {
     document.getElementById('nombreCompleto').value = data.nombreCompleto;
     document.getElementById('codigoPostal').value = data.codigoPostal;
     document.getElementById('domicilio').value = data.domicilio;
-    document.getElementById('vehiculo').value = data.vehiculo_id || '';
+    document.getElementById('vehiculo').value = data.vehiculoasignado || '';
   } catch (error) {
     console.error("Error al cargar pasajero para editar:", error);
   }
@@ -377,7 +377,6 @@ async function cargarVehiculos() {
         <td>${vehiculo.kilometraje}</td>
         <td>${formatearFecha(vehiculo.rto)}</td>
         <td>${vehiculo.equipamiento}</td>
-        <td>${vehiculo.conductores?.nombreCompleto || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarVehiculo('${vehiculo.patente}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${vehiculo.patente}')">Eliminar</button>
@@ -479,7 +478,6 @@ async function buscarVehiculo() {
         <td>${vehiculo.kilometraje}</td>
         <td>${formatearFecha(vehiculo.rto)}</td>
         <td>${vehiculo.equipamiento}</td>
-        <td>${vehiculo.conductores?.nombreCompleto || 'No asignado'}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="editarVehiculo('${vehiculo.patente}')">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="eliminarVehiculo('${vehiculo.patente}')">Eliminar</button>
@@ -504,7 +502,7 @@ async function cargarPatentesVehiculos() {
     
     data.forEach(vehiculo => {
       const option = document.createElement('option');
-      option.value = vehiculo.id;
+      option.value = vehiculo.patente;
       option.textContent = vehiculo.patente;
       selectVehiculo.appendChild(option);
     });

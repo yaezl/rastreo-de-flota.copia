@@ -11,15 +11,13 @@ function verificarAutenticacion() {
 // Función para inicializar la aplicación cuando se cargue
 async function inicializar() {
   try {
-    /* verificarAutenticacion();
-     */
-    // Cargar datos iniciales según la página actual
     const paginaActual = window.location.pathname;
     if (paginaActual.includes('personal.html')) {
       await cargarConductores();
       await cargarPasajeros();
     } else if (paginaActual.includes('vehiculos.html')) {
-      await cargarVehiculos();
+      console.log("Cargando vehículos desde inicializar()");
+      await cargarVehiculos(); // Nos aseguramos que esta función se ejecute
     } else if (paginaActual.includes('cargarConductor.html') || 
                paginaActual.includes('cargarPasajero.html')) {
       await cargarPatentesVehiculos();
@@ -539,13 +537,13 @@ function verificarEdicion() {
 document.addEventListener('DOMContentLoaded', async () => {
   // IMPORTANTE: Se descomenta esta línea para inicializar la aplicación
   await inicializar();
-  cargarVehiculos();
+/*   cargarVehiculos();
   cargarPasajeros();
   cargarConductores(); 
   cargarPatentesVehiculos();
   cargarConductorParaEditar(dni);
   cargarPasajeroParaEditar(dni);
-  cargarVehiculoParaEditar(patente);
+  cargarVehiculoParaEditar(patente); */
 
   // Botón de cerrar sesión
   const logoutButton = document.getElementById('salir');

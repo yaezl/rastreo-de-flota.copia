@@ -1,36 +1,4 @@
 const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com/api'; // tu endpoint real
-/*
-// Función para verificar si el usuario está autenticado
-function verificarAutenticacion() {
-  token = localStorage.getItem('token');
-  if (!token && !window.location.pathname.includes('logueo.html')) {
-    window.location.href = 'logueo.html';
-  }
-}*/
-
-// Función para inicializar la aplicación cuando se cargue
-async function inicializar() {
-  try {
-    /* verificarAutenticacion();
-     */
-    // Cargar datos iniciales según la página actual
-    const paginaActual = window.location.pathname;
-    if (paginaActual.includes('personal.html')) {
-      await cargarConductores();
-      await cargarPasajeros();
-    } else if (paginaActual.includes('vehiculos.html')) {
-      await cargarVehiculos();
-    } else if (paginaActual.includes('cargarConductor.html') || 
-               paginaActual.includes('cargarPasajero.html')) {
-      await cargarPatentesVehiculos();
-      verificarEdicion();
-    } else if (paginaActual.includes('cargarVehiculo.html')) {
-      verificarEdicion();
-    }
-  } catch (error) {
-    console.error("Error al inicializar la aplicación:", error);
-  }
-}
 
 // Función para hacer solicitudes a la API
 async function fetchAPI(endpoint, method = 'GET', data = null) {
@@ -67,28 +35,6 @@ async function fetchAPI(endpoint, method = 'GET', data = null) {
   }
 }
 
-/*// Función para manejar el inicio de sesión
-async function iniciarSesion(event) {
-  event.preventDefault();
-  
-  const email = document.getElementById('floatingInput').value;
-  const password = document.getElementById('floatingPassword').value;
-  
-  try {
-    const data = await fetchAPI('auth/login', 'POST', { email, password });
-    
-    // Guardar token de sesión
-    localStorage.setItem('token', data.session?.access_token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    
-    // Redirigir al dashboard
-    window.location.href = 'index.html';
-  } catch (error) {
-    alert('Error de inicio de sesión: ' + error.message);
-    console.error('Error de inicio de sesión:', error);
-  }
-}
-*/
 // Función para cerrar sesión
 function cerrarSesion() {
   localStorage.removeItem('token');
@@ -100,7 +46,7 @@ function cerrarSesion() {
 async function cargarConductores() {
   try {
     const data = await fetchAPI('conductores');
-    console.log("Datos de conductores recibidos:", data); // Para depuración
+    console.log("Datos de conductores recibidos:", data);
     
     const tbody = document.getElementById('conductorTableBody');
     if (!tbody) return;
@@ -165,18 +111,37 @@ async function editarConductor(dni) {
 
 async function cargarConductorParaEditar(dni) {
   try {
+    console.log("Obteniendo datos del conductor:", dni);
     const data = await fetchAPI(`conductores/${dni}`);
+    console.log("Datos obtenidos:", data);
     
-    document.getElementById('dni').value = data.dni;
-    document.getElementById('dni').readOnly = true; // No permitir editar el DNI
-    document.getElementById('nombreCompleto').value = data.nombreCompleto;
-    document.getElementById('codigoPostal').value = data.codigoPostal;
-    document.getElementById('domicilio').value = data.domicilio;
-    document.getElementById('vencimientoLic').value = data.vencimientoLic?.split('T')[0] || '';
-    document.getElementById('categoriaLic').value = data.categoriaLic;
-    document.getElementById('vehiculo').value = data.vehiculo || '';
+    // Verificar que los elementos existen antes de asignar valores
+    const dniInput = document.getElementById('dni');
+    if (dniInput) {
+      dniInput.value = data.dni;
+      dniInput.readOnly = true;
+    }
+    
+    if (document.getElementById('nombreCompleto')) 
+      document.getElementById('nombreCompleto').value = data.nombreCompleto || '';
+    
+    if (document.getElementById('codigoPostal'))
+      document.getElementById('codigoPostal').value = data.codigoPostal || '';
+    
+    if (document.getElementById('domicilio'))
+      document.getElementById('domicilio').value = data.domicilio || '';
+    
+    if (document.getElementById('vencimientoLic'))
+      document.getElementById('vencimientoLic').value = data.vencimientoLic?.split('T')[0] || '';
+    
+    if (document.getElementById('categoriaLic'))
+      document.getElementById('categoriaLic').value = data.categoriaLic || '';
+    
+    if (document.getElementById('vehiculo'))
+      document.getElementById('vehiculo').value = data.vehiculo?.patente || '';
   } catch (error) {
     console.error("Error al cargar conductor para editar:", error);
+    alert("Error al cargar datos del conductor: " + error.message);
   }
 }
 
@@ -234,7 +199,7 @@ async function buscarConductor() {
 async function cargarPasajeros() {
   try {
     const data = await fetchAPI('pasajeros');
-    console.log("Datos de pasajeros recibidos:", data); // Para depuración
+    console.log("Datos de pasajeros recibidos:", data);
     
     const tbody = document.getElementById('pasajeroTableBody');
     if (!tbody) return;
@@ -295,16 +260,33 @@ async function editarPasajero(dni) {
 
 async function cargarPasajeroParaEditar(dni) {
   try {
+    console.log("Obteniendo datos del pasajero:", dni);
     const data = await fetchAPI(`pasajeros/${dni}`);
+    console.log("Datos obtenidos:", data);
     
-    document.getElementById('dni').value = data.dni;
-    document.getElementById('dni').readOnly = true; // No permitir editar el DNI
-    document.getElementById('nombreCompleto').value = data.nombreCompleto;
-    document.getElementById('codigoPostal').value = data.codigoPostal;
-    document.getElementById('domicilio').value = data.domicilio;
-    document.getElementById('vehiculo').value = data.vehiculoasignado || '';
+    // Verificar que los elementos existen antes de asignar valores
+    const dniInput = document.getElementById('dni');
+    if (dniInput) {
+      dniInput.value = data.dni;
+      dniInput.readOnly = true;
+    }
+    
+    if (document.getElementById('nombreCompleto'))
+      document.getElementById('nombreCompleto').value = data.nombreCompleto || '';
+    
+    if (document.getElementById('codigoPostal'))
+      document.getElementById('codigoPostal').value = data.codigoPostal || '';
+    
+    if (document.getElementById('domicilio'))
+      document.getElementById('domicilio').value = data.domicilio || '';
+    
+    // Asegúrate de que el ID coincida con el que tienes en el HTML
+    // Podría ser 'vehiculo' o 'vehiculoasignado'
+    if (document.getElementById('vehiculo'))
+      document.getElementById('vehiculo').value = data.vehiculoasignado?.patente || data.vehiculoasignado || '';
   } catch (error) {
     console.error("Error al cargar pasajero para editar:", error);
+    alert("Error al cargar datos del pasajero: " + error.message);
   }
 }
 
@@ -360,7 +342,7 @@ async function buscarPasajero() {
 async function cargarVehiculos() {
   try {
     const data = await fetchAPI('vehiculos');
-    console.log("Datos de vehículos recibidos:", data); // Para depuración
+    console.log("Datos de vehículos recibidos:", data);
     
     const tbody = document.getElementById('vehiculoTableBody');
     if (!tbody) return;
@@ -425,18 +407,37 @@ async function editarVehiculo(patente) {
 
 async function cargarVehiculoParaEditar(patente) {
   try {
+    console.log("Obteniendo datos del vehículo:", patente);
     const data = await fetchAPI(`vehiculos/${patente}`);
+    console.log("Datos obtenidos:", data);
     
-    document.getElementById('patente').value = data.patente;
-    document.getElementById('patente').readOnly = true; // No permitir editar la patente
-    document.getElementById('marca').value = data.marca;
-    document.getElementById('modelo').value = data.modelo;
-    document.getElementById('combustible').value = data.combustible;
-    document.getElementById('kilometraje').value = data.kilometraje;
-    document.getElementById('rto').value = data.rto?.split('T')[0] || '';
-    document.getElementById('equipamiento').value = data.equipamiento;
+    // Verificar que los elementos existen antes de asignar valores
+    const patenteInput = document.getElementById('patente');
+    if (patenteInput) {
+      patenteInput.value = data.patente;
+      patenteInput.readOnly = true;
+    }
+    
+    if (document.getElementById('marca'))
+      document.getElementById('marca').value = data.marca || '';
+    
+    if (document.getElementById('modelo'))
+      document.getElementById('modelo').value = data.modelo || '';
+    
+    if (document.getElementById('combustible'))
+      document.getElementById('combustible').value = data.combustible || '';
+    
+    if (document.getElementById('kilometraje'))
+      document.getElementById('kilometraje').value = data.kilometraje || '';
+    
+    if (document.getElementById('rto'))
+      document.getElementById('rto').value = data.rto?.split('T')[0] || '';
+    
+    if (document.getElementById('equipamiento'))
+      document.getElementById('equipamiento').value = data.equipamiento || '';
   } catch (error) {
     console.error("Error al cargar vehículo para editar:", error);
+    alert("Error al cargar datos del vehículo: " + error.message);
   }
 }
 
@@ -524,55 +525,25 @@ function verificarEdicion() {
   const dni = urlParams.get('dni');
   const patente = urlParams.get('patente');
   
-  if (dni) {
-    if (window.location.pathname.includes('cargarConductor.html')) {
-      cargarConductorParaEditar(dni);
-    } else if (window.location.pathname.includes('cargarPasajero.html')) {
-      cargarPasajeroParaEditar(dni);
-    }
-  } else if (patente && window.location.pathname.includes('cargarVehiculo.html')) {
-    cargarVehiculoParaEditar(patente);
+  console.log("Verificando edición - DNI:", dni, "Patente:", patente);
+  
+  // Si hay parámetros en la URL, cargar los datos correspondientes
+  if (dni && window.location.pathname.includes('cargarConductor.html')) {
+    console.log("Cargando conductor para editar:", dni);
+    setTimeout(() => cargarConductorParaEditar(dni), 100); // Pequeño delay para asegurar que los elementos existen
+  } 
+  else if (dni && window.location.pathname.includes('cargarPasajero.html')) {
+    console.log("Cargando pasajero para editar:", dni);
+    setTimeout(() => cargarPasajeroParaEditar(dni), 100);
+  } 
+  else if (patente && window.location.pathname.includes('cargarVehiculo.html')) {
+    console.log("Cargando vehículo para editar:", patente);
+    setTimeout(() => cargarVehiculoParaEditar(patente), 100);
   }
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', async () => {
-  // IMPORTANTE: Se descomenta esta línea para inicializar la aplicación
-  await inicializar();
-  cargarVehiculos();
-  cargarPasajeros();
-  cargarConductores(); 
-  cargarPatentesVehiculos();
-  verificarEdicion();
-  /* cargarConductorParaEditar(dni);
-  cargarPasajeroParaEditar(dni);
-  cargarVehiculoParaEditar(patente); */
-  
-
-  // Botón de cerrar sesión
-  const logoutButton = document.getElementById('salir');
-  if (logoutButton) {
-    logoutButton.addEventListener('click', cerrarSesion);
-  }
-  
-  // Formulario de conductor
-  const conductorForm = document.getElementById('conductorForm');
-  if (conductorForm) {
-    conductorForm.addEventListener('submit', guardarConductor);
-  }
-  
-  // Formulario de pasajero
-  const pasajeroForm = document.getElementById('pasajeroForm');
-  if (pasajeroForm) {
-    pasajeroForm.addEventListener('submit', guardarPasajero);
-  }
-  
-  // Formulario de vehículo 
-  const vehiculoForm = document.getElementById('vehiculoForm');
-  if (vehiculoForm) {
-    vehiculoForm.addEventListener('submit', guardarVehiculo);
-  }
-  
+// Función auxiliar para configurar búsquedas
+function configurarBusquedas() {
   // Botones de búsqueda
   const busquedaConductorInput = document.getElementById('busquedaConductor');
   if (busquedaConductorInput) {
@@ -603,5 +574,56 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+}
 
+// Event Listeners
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("Página cargada:", window.location.pathname);
+  
+  // Verificar edición primero (si aplica)
+  verificarEdicion();
+  
+  // Cargar datos según la página
+  const paginaActual = window.location.pathname;
+  
+  if (paginaActual.includes('vehiculos.html')) {
+    await cargarVehiculos();
+  } 
+  else if (paginaActual.includes('personal.html')) {
+    await cargarConductores();
+    await cargarPasajeros();
+  }
+  else if (paginaActual.includes('cargarConductor.html') || 
+           paginaActual.includes('cargarPasajero.html')) {
+    await cargarPatentesVehiculos();
+  }
+  
+  // Configurar event listeners para los botones y formularios
+  
+  // Botón de cerrar sesión
+  const logoutButton = document.getElementById('salir');
+  if (logoutButton) {
+    logoutButton.addEventListener('click', cerrarSesion);
+  }
+  
+  // Formulario de conductor
+  const conductorForm = document.getElementById('conductorForm');
+  if (conductorForm) {
+    conductorForm.addEventListener('submit', guardarConductor);
+  }
+  
+  // Formulario de pasajero
+  const pasajeroForm = document.getElementById('pasajeroForm');
+  if (pasajeroForm) {
+    pasajeroForm.addEventListener('submit', guardarPasajero);
+  }
+  
+  // Formulario de vehículo 
+  const vehiculoForm = document.getElementById('vehiculoForm');
+  if (vehiculoForm) {
+    vehiculoForm.addEventListener('submit', guardarVehiculo);
+  }
+  
+  // Configurar búsquedas
+  configurarBusquedas();
 });

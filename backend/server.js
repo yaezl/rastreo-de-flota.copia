@@ -15,9 +15,10 @@ app.use(express.json()); // Para parsear JSON en las peticiones
 app.use(express.urlencoded({ extended: true })); // Para parsear datos de formularios
 
 // Configuración de CORS
+// Configuración de CORS
 const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',')
-  : ['*'];
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : ['*']; // Evitás errores por espacios accidentales
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -26,6 +27,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
+      console.log(`CORS bloqueado para origen: ${origin}`);
       return callback(new Error('No permitido por CORS'));
     }
   },
@@ -34,6 +36,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
 
 // Inicializar cliente de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;

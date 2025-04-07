@@ -15,11 +15,24 @@ app.use(express.json()); // Para parsear JSON en las peticiones
 app.use(express.urlencoded({ extended: true })); // Para parsear datos de formularios
 
 // Configuración de CORS
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['*'];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: function (origin, callback) {
+    // Permitir solicitudes sin origen (como las de curl o Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('No permitido por CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
+
 app.use(cors(corsOptions));
 
 // Inicializar cliente de Supabase

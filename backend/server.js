@@ -142,7 +142,7 @@ app.get('/api/pasajeros', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('pasajeros')
-      .select('*, vehiculos(patente)');
+      .select('*, vehiculoAsignado(patente)');
     
     if (error) throw error;
     res.status(200).json(data);

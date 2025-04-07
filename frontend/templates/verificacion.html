@@ -6,7 +6,7 @@
 </head>
 <body>
   <h2>Ingresa el código que recibiste por correo:</h2>
-  <input type="text" id="codigoIngresado">
+  <input type="text" id="codigoIngresado" placeholder="Código de 6 dígitos">
   <button onclick="verificarCodigo()">Verificar</button>
 
   <script>
@@ -15,12 +15,13 @@
       const codigoReal = localStorage.getItem("codigo_verificacion");
 
       if (ingresado === codigoReal) {
-        alert("¡Acceso concedido!");
-        window.location.href = "index.html"; // o a donde necesites ir
+        alert("¡Código correcto! Bienvenido.");
+        window.location.href = "index.html"; // o dashboard.html
       } else {
-        alert("Código incorrecto.");
+        alert("Código incorrecto. Intenta nuevamente.");
       }
     }
   </script>
 </body>
 </html>
+

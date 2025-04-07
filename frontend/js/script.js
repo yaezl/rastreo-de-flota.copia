@@ -11,13 +11,10 @@ function verificarAutenticacion() {
 // Función para inicializar la aplicación cuando se cargue
 async function inicializar() {
   try {
-    console.log("Inicializando aplicación...");
     /* verificarAutenticacion();
      */
     // Cargar datos iniciales según la página actual
     const paginaActual = window.location.pathname;
-    console.log("Página actual:", paginaActual);
-    
     if (paginaActual.includes('personal.html')) {
       await cargarConductores();
       await cargarPasajeros();
@@ -26,12 +23,10 @@ async function inicializar() {
     } else if (paginaActual.includes('cargarConductor.html') || 
                paginaActual.includes('cargarPasajero.html')) {
       await cargarPatentesVehiculos();
-      verificarEdicion(); // Esta función maneja la carga para edición
+      verificarEdicion();
     } else if (paginaActual.includes('cargarVehiculo.html')) {
-      verificarEdicion(); // Esta función maneja la carga para edición
+      verificarEdicion();
     }
-    
-    console.log("Inicialización completada");
   } catch (error) {
     console.error("Error al inicializar la aplicación:", error);
   }
@@ -170,9 +165,7 @@ async function editarConductor(dni) {
 
 async function cargarConductorParaEditar(dni) {
   try {
-    console.log("Cargando conductor con DNI:", dni);
     const data = await fetchAPI(`conductores/${dni}`);
-    console.log("Datos recibidos del conductor:", data);
     
     document.getElementById('dni').value = data.dni;
     document.getElementById('dni').readOnly = true; // No permitir editar el DNI
@@ -181,17 +174,7 @@ async function cargarConductorParaEditar(dni) {
     document.getElementById('domicilio').value = data.domicilio;
     document.getElementById('vencimientoLic').value = data.vencimientoLic?.split('T')[0] || '';
     document.getElementById('categoriaLic').value = data.categoriaLic;
-    
-    // Verifica si vehiculo es un objeto o un string
-    if (data.vehiculo) {
-      if (typeof data.vehiculo === 'object') {
-        document.getElementById('vehiculo').value = data.vehiculo.patente || '';
-      } else {
-        document.getElementById('vehiculo').value = data.vehiculo || '';
-      }
-    } else {
-      document.getElementById('vehiculo').value = '';
-    }
+    document.getElementById('vehiculo').value = data.vehiculo || '';
   } catch (error) {
     console.error("Error al cargar conductor para editar:", error);
   }
@@ -312,41 +295,14 @@ async function editarPasajero(dni) {
 
 async function cargarPasajeroParaEditar(dni) {
   try {
-    console.log("Cargando pasajero con DNI:", dni);
     const data = await fetchAPI(`pasajeros/${dni}`);
-    console.log("Datos recibidos del pasajero:", data);
     
     document.getElementById('dni').value = data.dni;
     document.getElementById('dni').readOnly = true; // No permitir editar el DNI
     document.getElementById('nombreCompleto').value = data.nombreCompleto;
     document.getElementById('codigoPostal').value = data.codigoPostal;
     document.getElementById('domicilio').value = data.domicilio;
-    
-    // Verifica qué campo existe en el formulario y adapta según corresponda
-    const campoVehiculo = document.getElementById('vehiculo');
-    const campoVehiculoAsignado = document.getElementById('vehiculoasignado');
-    
-    if (campoVehiculo) {
-      if (data.vehiculoasignado) {
-        if (typeof data.vehiculoasignado === 'object') {
-          campoVehiculo.value = data.vehiculoasignado.patente || '';
-        } else {
-          campoVehiculo.value = data.vehiculoasignado || '';
-        }
-      } else {
-        campoVehiculo.value = '';
-      }
-    } else if (campoVehiculoAsignado) {
-      if (data.vehiculoasignado) {
-        if (typeof data.vehiculoasignado === 'object') {
-          campoVehiculoAsignado.value = data.vehiculoasignado.patente || '';
-        } else {
-          campoVehiculoAsignado.value = data.vehiculoasignado || '';
-        }
-      } else {
-        campoVehiculoAsignado.value = '';
-      }
-    }
+    document.getElementById('vehiculo').value = data.vehiculoasignado || '';
   } catch (error) {
     console.error("Error al cargar pasajero para editar:", error);
   }
@@ -469,9 +425,7 @@ async function editarVehiculo(patente) {
 
 async function cargarVehiculoParaEditar(patente) {
   try {
-    console.log("Cargando vehículo con patente:", patente);
     const data = await fetchAPI(`vehiculos/${patente}`);
-    console.log("Datos recibidos del vehículo:", data);
     
     document.getElementById('patente').value = data.patente;
     document.getElementById('patente').readOnly = true; // No permitir editar la patente
@@ -542,21 +496,15 @@ async function cargarPatentesVehiculos() {
     const data = await fetchAPI('vehiculos/patentes');
     
     const selectVehiculo = document.getElementById('vehiculo');
-    const selectVehiculoAsignado = document.getElementById('vehiculoasignado');
-    const selectAUsar = selectVehiculo || selectVehiculoAsignado;
+    if (!selectVehiculo) return;
     
-    if (!selectAUsar) {
-      console.log("No se encontró el elemento select para vehículos");
-      return;
-    }
-    
-    selectAUsar.innerHTML = '<option value="">Seleccione un vehículo</option>';
+    selectVehiculo.innerHTML = '<option value="">Seleccione un vehículo</option>';
     
     data.forEach(vehiculo => {
       const option = document.createElement('option');
       option.value = vehiculo.patente;
       option.textContent = vehiculo.patente;
-      selectAUsar.appendChild(option);
+      selectVehiculo.appendChild(option);
     });
   } catch (error) {
     console.error("Error al cargar patentes de vehículos:", error);
@@ -576,29 +524,29 @@ function verificarEdicion() {
   const dni = urlParams.get('dni');
   const patente = urlParams.get('patente');
   
-  console.log("Verificando edición - DNI:", dni, "Patente:", patente);
-  console.log("Ruta actual:", window.location.pathname);
-  
   if (dni) {
     if (window.location.pathname.includes('cargarConductor.html')) {
-      console.log("Cargando conductor para editar");
       cargarConductorParaEditar(dni);
     } else if (window.location.pathname.includes('cargarPasajero.html')) {
-      console.log("Cargando pasajero para editar");
       cargarPasajeroParaEditar(dni);
     }
   } else if (patente && window.location.pathname.includes('cargarVehiculo.html')) {
-    console.log("Cargando vehículo para editar");
     cargarVehiculoParaEditar(patente);
   }
 }
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log("DOM completamente cargado, inicializando...");
-  // Inicializar la aplicación - esto ya maneja la carga para edición
+  // IMPORTANTE: Se descomenta esta línea para inicializar la aplicación
   await inicializar();
-  
+  cargarVehiculos();
+  cargarPasajeros();
+  cargarConductores(); 
+  cargarPatentesVehiculos();
+  cargarConductorParaEditar(dni);
+  cargarPasajeroParaEditar(dni);
+  cargarVehiculoParaEditar(patente);
+
   // Botón de cerrar sesión
   const logoutButton = document.getElementById('salir');
   if (logoutButton) {
@@ -653,4 +601,5 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
 });

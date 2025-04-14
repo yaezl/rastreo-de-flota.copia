@@ -8,11 +8,26 @@
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="../css/costume.css">
   <link rel="stylesheet" href="../css/cruds.css">
+  <!-- ICON -->
   <link rel="shortcut icon" href="../img/lampara-de-techo.png" type="image/x-icon">
   <title>Verificación</title>
+  <!-- FONTS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+      <!-- SCRIPT -->
+  <script>
+    const ruta = window.location.pathname;
+    const esLogin = ruta.includes('logueo.html');
+    const esVerificacion = ruta.includes('verificacion.html');
+  
+    const verificado = sessionStorage.getItem("verificacion_completa") === "true";
+    const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
+  
+    if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
+      window.location.replace("../logueo.html");
+    }
+  </script>  
 </head>
 
 <body>

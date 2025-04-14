@@ -15,6 +15,19 @@
   <!-- ICON DE LA PÁGINA -->
   <link rel="shortcut icon" href="../img/lampara-de-techo.png" type="image/x-icon">
   <title>Sistema de Rastreo de Flotas</title>
+    <!-- SCRIPT -->
+    <script>
+      const ruta = window.location.pathname;
+      const esLogin = ruta.includes('logueo.html');
+      const esVerificacion = ruta.includes('verificacion.html');
+    
+      const verificado = sessionStorage.getItem("verificacion_completa") === "true";
+      const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
+    
+      if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
+        window.location.replace("logueo.html");
+      }
+    </script>  
 </head>
 
 <body>

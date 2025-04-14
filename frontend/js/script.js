@@ -8,6 +8,16 @@ function verificarAutenticacion() {
   }
 }*/
 
+function verificarAcceso() {
+  const verificado = sessionStorage.getItem("verificacion_completa") === "true";
+  if (!verificado) {
+    // Detectar si estás en una carpeta tipo /templates o raíz
+    const ruta = window.location.pathname.includes('/templates/') ? 'verificacion.html' : './templates/verificacion.html';
+    window.location.replace(ruta);
+  }
+}
+
+
 // Función para inicializar la aplicación cuando se cargue
 async function inicializar() {
   try {
@@ -542,6 +552,7 @@ function verificarEdicion() {
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
   // IMPORTANTE: Se descomenta esta línea para inicializar la aplicación
+  verificarAcceso();
   await inicializar();
   cargarVehiculos();
   cargarPasajeros();

@@ -91,10 +91,14 @@ async function iniciarSesion(event) {
 */
 // Función para cerrar sesión
 function cerrarSesion() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  sessionStorage.clear();
+  localStorage.removeItem("codigo_verificacion");
+  localStorage.removeItem("correo_verificacion");
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
   window.location.href = 'logueo.html';
-} 
+}
+
 
 // GESTIÓN DE CONDUCTORES
 async function cargarConductores() {

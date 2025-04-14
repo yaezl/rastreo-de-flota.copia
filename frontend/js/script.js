@@ -9,13 +9,19 @@ function verificarAutenticacion() {
 }*/
 
 function verificarAcceso() {
+  const ruta = window.location.pathname;
+  const esLogin = ruta.includes('logueo.html');
+  const esVerificacion = ruta.includes('verificacion.html');
+
+  if (esLogin || esVerificacion) return; // No redirigir en login o verificación
+
   const verificado = sessionStorage.getItem("verificacion_completa") === "true";
   if (!verificado) {
-    // Detectar si estás en una carpeta tipo /templates o raíz
-    const ruta = window.location.pathname.includes('/templates/') ? 'verificacion.html' : './templates/verificacion.html';
-    window.location.replace(ruta);
+    const redireccion = ruta.includes('/templates/') ? 'verificacion.html' : './templates/verificacion.html';
+    window.location.replace(redireccion);
   }
 }
+
 
 
 // Función para inicializar la aplicación cuando se cargue

@@ -14,6 +14,11 @@ body {
     font-family: 'Russo One';
 }
 
+/* Verificación */
+.subtitulo{
+    color: white;
+}
+
 /* Header */
 .navbar-brand img {
     max-height: 50px; /* Altura máxima del logo */

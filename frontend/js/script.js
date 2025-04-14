@@ -110,10 +110,12 @@ function cerrarSesion() {
   sessionStorage.clear();
   localStorage.removeItem("codigo_verificacion");
   localStorage.removeItem("correo_verificacion");
+  localStorage.removeItem("inicio_sesion_correcto");
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   window.location.href = 'logueo.html';
 }
+
 
 
 // GESTIÓN DE CONDUCTORES

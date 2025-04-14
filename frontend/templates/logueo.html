@@ -41,6 +41,8 @@
         alert("Correo o contraseña incorrectos.");
         return;
       }
+      localStorage.setItem("inicio_sesion_correcto", "true");
+
 
       // Generar código y guardarlo
       const codigo = Math.floor(100000 + Math.random() * 900000); // 6 dígitos

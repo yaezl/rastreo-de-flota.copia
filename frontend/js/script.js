@@ -1,14 +1,14 @@
 const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com/api'; // tu endpoint real
-/*
+
 // Función para verificar si el usuario está autenticado
 function verificarAutenticacion() {
   token = localStorage.getItem('token');
   if (!token && !window.location.pathname.includes('logueo.html')) {
     window.location.href = 'logueo.html';
   }
-}*/
+}
 
-function verificarAcceso() {
+ function verificarAcceso() {
   const ruta = window.location.pathname;
   const esLogin = ruta.includes('logueo.html');
   const esVerificacion = ruta.includes('verificacion.html');
@@ -20,7 +20,7 @@ function verificarAcceso() {
     const redireccion = ruta.includes('/templates/') ? 'verificacion.html' : './templates/verificacion.html';
     window.location.replace(redireccion);
   }
-}
+} 
 
 
 
@@ -82,8 +82,8 @@ async function fetchAPI(endpoint, method = 'GET', data = null) {
     throw error;
   }
 }
-
-/*// Función para manejar el inicio de sesión
+/*
+// Función para manejar el inicio de sesión
 async function iniciarSesion(event) {
   event.preventDefault();
   
@@ -103,8 +103,8 @@ async function iniciarSesion(event) {
     alert('Error de inicio de sesión: ' + error.message);
     console.error('Error de inicio de sesión:', error);
   }
-}
-*/
+}*/
+
 // Función para cerrar sesión
 function cerrarSesion() {
   sessionStorage.clear();

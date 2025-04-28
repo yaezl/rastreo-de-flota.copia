@@ -10,13 +10,13 @@ html{
 
 /* Estilos Importantes */
 body {
-    background-color: black;
-    font-family: 'Russo One';
+    background-color: #F1ECE7;
+    /* font-family: 'Russo One'; */
 }
 
 /* Verificación */
 .subtitulo{
-    color: white;
+    color: #2E2E32;
 }
 
 /* Header */
@@ -26,11 +26,11 @@ body {
 }
 
 #nombreEmpresa{
-    color: antiquewhite;
+    color: #2E2E32;
 }
 
 #salir{
-    background-color:#f51f8c;
+    background-color:#7A5B5A;
     border: 0px;
 }
 
@@ -39,34 +39,34 @@ body {
 }
 
 #salir:hover{
-    background-color: #a2145d;
+    background-color: #A89F91;
 }
 
 .nav-link{
-    color:white;
+    color:#2E2E32;
     font-size: 14px;
 }
 
 .nav-link.active{
-    border-bottom: 3px solid #f51f8c;
+    border-bottom: 3px solid #7A5B5A;
 }
 
 .nav-link:hover{
-    color: #f51f8c;
+    color: 	#5C565D;
 }
 
 /* Inicio */
 #Inicio #titulo{
-    color: #f51f8c;
+    color: #2E2E32;
 }
 
 #Inicio #subtitulo{
-    color: antiquewhite;
+    color: #2E2E32;
 }
 
 /* Guia de uso */
 #Guia .card {
-    background-color: #e7c9d9; 
+    background-color: 	#A58C6F; 
     text-align: center;
     color: rgb(0, 0, 0);
     font-family: Arial, sans-serif;
@@ -95,12 +95,12 @@ body {
 
 /* Footer */
 footer{
-    background-color: #e7c9d9;
+    background-color: #A58C6F;
     font-family: Arial, sans-serif;
 }
 
 .creditos{
     display: flex;
     justify-content: center;
-    color: black;
+    color: #2E2E32;
 }

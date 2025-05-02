@@ -2,17 +2,27 @@ main{
     font-family: 'Courier New', Courier, monospace;
 }
 
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.logo img{
+    max-width: 150px;
+    height: auto;
+}
+
 .card {
-    background-color: #0a0a0a;
-    border: 1px solid #a0a0a7;
+    background-color: #5C565D;
+    border: 1px solid #7A5B5A;
     border-radius: 10px;
-    padding: 50px;
+    padding: 30px;
     margin-top: 40px;
+    box-shadow: 0 4px 10px rgb(0, 0,0,0.2);
 }
 
 .card h2{
     color: white;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 a{
@@ -21,17 +31,19 @@ a{
 }
 
 .btn,button{
-    padding: 8px 10px;
+    padding: 12px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 100%;
+    font-size: 16px;
+    margin-top: 20px;
 }
 
 .btn-primary,button {
-    background-color: #f51f8c;
+    background-color: #7A5B5A;
     color: white;
+    
 }
 
 .btn-outline {
@@ -41,8 +53,9 @@ a{
 }
 
 .btn:hover, button:hover{
-    background-color: #a2145d;
+    background-color: #A89F91;
     transition: 0.2s;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
 .actions {
@@ -65,35 +78,37 @@ a{
 }
 
 #conductorTable th, #pasajeroTable th, #vehiculoTable th {
-    background-color: #0a0a0a;
+    background-color: #2E2E32;
 }
 
 #conductorTable tr:nth-child(even), #pasajeroTable tr:nth-child(even), #vehiculoTable tr:nth-child(even) {
-    background-color: #161617;
+    background-color: #2E2E32;
 }
 
 #conductorTable tr:hover, #pasajeroTable tr:hover, #vehiculoTable tr:hover {
-    background-color: #2a2a2a;
+    background-color: #7A5B5A;
 }
 
 .form-group {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
     color: #ffffff;
     margin-bottom: 10px;
+    font-size: 18px;
 }
 
 .form-group input, .form-group select, .form-group textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #b3a5a5;
+    padding: 12px;
+    border: 1px solid #7A5B5A;
     border-radius: 4px;
     background-color: #eeeef8;
     color: rgb(0, 0, 0);
-    font-size: 20px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
 }
 
 .search-bar input{

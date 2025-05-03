@@ -30,7 +30,7 @@ a{
     text-decoration: none;
 }
 
-.btn,button{
+.btn,button, tbody button{
     padding: 8px 10px;
     border: none;
     border-radius: 5px;
@@ -39,7 +39,7 @@ a{
     font-size: 100%;
 }
 
-.btn-primary,button {
+.btn-primary,button, tbody button {
     background-color: #7A5B5A;
     color: white;
     

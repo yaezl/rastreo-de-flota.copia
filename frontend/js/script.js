@@ -151,7 +151,7 @@ async function cargarConductores() {
         <td>${c.domicilio}</td>
         <td>${formatearFecha(c.vencimientoLic)}</td>
         <td>${c.categoriaLic}</td>
-        <td>${c.vehiculo || 'No asignado'}</td>
+        <td>${typeof c.vehiculo === 'object' ? c.vehiculo?.patente || 'No asignado' : c.vehiculo || 'No asignado'}</td>
         <td>
           <button class='btn btn-warning btn-sm' onclick="editarConductor('${c.dni}')">Editar</button>
           <button class='btn btn-danger btn-sm' onclick="eliminarConductor('${c.dni}')">Eliminar</button>
@@ -270,7 +270,7 @@ async function cargarPasajeros() {
         <td>${p.nombreCompleto}</td>
         <td>${p.codigoPostal}</td>
         <td>${p.domicilio}</td>
-        <td>${p.vehiculoasignado || 'No asignado'}</td>
+        <td>${typeof p.vehiculoasignado === 'object' ? p.vehiculoasignado?.patente || 'No asignado' : p.vehiculoasignado || 'No asignado'}</td>
         <td>
           <button class='btn btn-warning btn-sm' onclick="editarPasajero('${p.dni}')">Editar</button>
           <button class='btn btn-danger btn-sm' onclick="eliminarPasajero('${p.dni}')">Eliminar</button>

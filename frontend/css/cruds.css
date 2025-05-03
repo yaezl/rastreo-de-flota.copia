@@ -119,3 +119,11 @@ a{
     color: rgb(0, 0, 0);
     font-size: 20px;
 }
+
+.modal-content label{
+    color: black;
+}
+
+.modal-footer button{
+    background-color: #7A5B5A;
+}

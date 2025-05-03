@@ -8,9 +8,6 @@
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="../css/costume.css">
   <link rel="stylesheet" href="../css/cruds.css">
-  <!-- JS -->
-  <script src="../js/api.js"></script>
-  <script src="../js/script.js"></script>
   <!-- FONTS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,19 +15,18 @@
   <!-- ICON DE LA PÁGINA -->
   <link rel="shortcut icon" href="../img/iconoSF.png" type="image/x-icon">
   <title>Sistema de Rastreo de Flotas</title>
-    <!-- SCRIPT -->
-    <script>
-      const ruta = window.location.pathname;
-      const esLogin = ruta.includes('logueo.html');
-      const esVerificacion = ruta.includes('verificacion.html');
-    
-      const verificado = sessionStorage.getItem("verificacion_completa") === "true";
-      const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
-    
-      if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
-        window.location.replace("logueo.html");
-      }
-    </script>  
+  <!-- JS -->
+  <script src="../js/script.js"></script>
+  <script>
+    const ruta = window.location.pathname;
+    const esLogin = ruta.includes('logueo.html');
+    const esVerificacion = ruta.includes('verificacion.html');
+    const verificado = sessionStorage.getItem("verificacion_completa") === "true";
+    const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
+    if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
+      window.location.replace("logueo.html");
+    }
+  </script>
 </head>
 
 <body>
@@ -39,38 +35,28 @@
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
       <div class="col-md-3 mb-2 mb-md-0">
         <a href="#" class="navbar-brand d-flex align-items-center">
-          <img src="../img/iconoSF.png" alt="Logo Rastreo de flotas" class="img-fluid"
-            style="max-height: 50px ;">
+          <img src="../img/iconoSF.png" alt="Logo Rastreo de flotas" class="img-fluid" style="max-height: 50px;">
           <span class="fs-5" id="nombreEmpresa"> GeoBuild S.A. </span>
         </a>
       </div>
-
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><a href="../index.html" class="nav-link px-2">Inicio</a></li>
         <li><a href="personal.html" class="nav-link active px-2">Gestión de Personal</a></li>
         <li><a href="vehiculos.html" class="nav-link px-2">Gestión Vehicular</a></li>
         <li><a href="monitoreo.html" class="nav-link px-2">Centro de Monitoreo</a></li>
       </ul>
-
       <div class="col-md-3 text-end">
-        <button type="button" class="btn btn-primary" id="salir">
-          <a href="logueo.html" class="nav-link px-2">Cerrar Sesion</a>
-        </button>
+        <button type="button" class="btn btn-primary" id="salir">Cerrar Sesión</button>
       </div>
     </header>
   </div>
   <hr>
 
   <main class="container">
-
     <div class="card">
-     <!--  <div class="search-bar">
-        <input type="text" id="busquedaConductor" placeholder="Buscar por DNI o nombre..." />
-        <button onclick="buscarConductor()">Buscar</button>
-      </div> -->
       <div class="actions">
-        <button type="button" class="btn btn-primary">
-          <a href="cargarConductor.html">Agregar Conductor</a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalConductor">
+          Agregar Conductor
         </button>
       </div>
       <h2>Conductores Registrados:</h2>
@@ -87,20 +73,14 @@
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="conductorTableBody">
-          <!-- Los conductores se cargarán dinámicamente con JavaScript -->
-        </tbody>
+        <tbody id="conductorTableBody"></tbody>
       </table>
     </div>
 
-    <div class="card">
-      <!-- <div class="search-bar">
-        <input type="text" id="busquedaPasajero" placeholder="Buscar por DNI o nombre..." />
-        <button onclick="buscarPasajero()">Buscar</button>
-      </div> -->
+    <div class="card mt-5">
       <div class="actions">
-        <button type="button" class="btn btn-primary">
-          <a href="cargarPasajero.html">Agregar Pasajero</a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPasajero">
+          Agregar Pasajero
         </button>
       </div>
       <h2>Pasajeros Registrados:</h2>
@@ -115,23 +95,106 @@
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="pasajeroTableBody">
-          <!-- Los pasajeros se cargarán dinámicamente con JavaScript -->
-        </tbody>
+        <tbody id="pasajeroTableBody"></tbody>
       </table>
     </div>
   </main>
 
+  <!-- Modales -->
+  <div class="modal fade" id="modalConductor" tabindex="-1" aria-labelledby="modalConductorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="conductorForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalConductorLabel">Datos del Conductor</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group mb-2">
+              <label for="dni">DNI:</label>
+              <input type="text" id="dni" name="dni" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="nombreCompleto">Nombre Completo:</label>
+              <input type="text" id="nombreCompleto" name="nombreCompleto" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="codigoPostal">Código Postal:</label>
+              <input type="text" id="codigoPostal" name="codigoPostal" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="domicilio">Domicilio:</label>
+              <input type="text" id="domicilio" name="domicilio" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="vencimientoLic">Vencimiento Licencia:</label>
+              <input type="date" id="vencimientoLic" name="vencimientoLic" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="categoriaLic">Categoría de Licencia:</label>
+              <input type="text" id="categoriaLic" name="categoriaLic" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="vehiculo">Vehículo Asignado:</label>
+              <select id="vehiculo" name="vehiculo" class="form-control">
+                <option value="">Cargando Patentes...</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-  <!-- Footer -->
-  <footer class=" py-3 my-4 border-top">
-    <!-- DERECHOS DE AUTOR -->
+  <div class="modal fade" id="modalPasajero" tabindex="-1" aria-labelledby="modalPasajeroLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="pasajeroForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalPasajeroLabel">Datos del Pasajero</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group mb-2">
+              <label for="dni">DNI:</label>
+              <input type="text" id="dni" name="dni" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="nombreCompleto">Nombre Completo:</label>
+              <input type="text" id="nombreCompleto" name="nombreCompleto" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="codigoPostal">Código Postal:</label>
+              <input type="text" id="codigoPostal" name="codigoPostal" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="domicilio">Domicilio:</label>
+              <input type="text" id="domicilio" name="domicilio" class="form-control" required>
+            </div>
+            <div class="form-group mb-2">
+              <label for="vehiculo">Vehículo Asignado:</label>
+              <select id="vehiculo" name="vehiculoasignado" class="form-control">
+                <option value="">Cargando Patentes...</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer class="py-3 my-4 border-top">
     <div>
       <p class="creditos">&copy; 2025 Desarrollo de Software, ITU-UNCUYO</p>
     </div>
   </footer>
 
-  <script src="../js/script.js"></script>
   <script src="../js/bootstrap.js"></script>
 </body>
 

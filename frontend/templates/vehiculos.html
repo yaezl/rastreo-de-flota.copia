@@ -8,100 +8,133 @@
   <link rel="stylesheet" href="../css/bootstrap.css">
   <link rel="stylesheet" href="../css/costume.css">
   <link rel="stylesheet" href="../css/cruds.css">
-  <!-- JS -->
-  <script src="../js/api.js"></script>
-  <script src="../js/script.js"></script>
   <!-- FONTS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
-  <!-- ICON DE LA PÁGINA -->
-  <link rel="shortcut icon" href="../img/iconoSF.png" type="image/x-icon">
-  <title>Sistema de Rastreo de Flotas</title>
-    <!-- SCRIPT -->
-    <script>
-      const ruta = window.location.pathname;
-      const esLogin = ruta.includes('logueo.html');
-      const esVerificacion = ruta.includes('verificacion.html');
-    
-      const verificado = sessionStorage.getItem("verificacion_completa") === "true";
-      const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
-    
-      if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
-        window.location.replace("logueo.html");
-      }
-    </script>  
+  <!-- ICON -->
+  <link rel="shortcut icon" href="./img/iconoSF.png" type="image/x-icon">
+  <title>Gestión Vehicular - GeoBuild S.A.</title>
+  <!-- JS -->
+  <script src="../js/script.js"></script>
+  <script>
+    const ruta = window.location.pathname;
+    const esLogin = ruta.includes('logueo.html');
+    const esVerificacion = ruta.includes('verificacion.html');
+    const verificado = sessionStorage.getItem("verificacion_completa") === "true";
+    const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
+    if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
+      window.location.replace("logueo.html");
+    }
+  </script>
 </head>
 
 <body>
   <div class="container">
-    <header
-      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
       <div class="col-md-3 mb-2 mb-md-0">
         <a href="#" class="navbar-brand d-flex align-items-center">
-          <img src="../img/iconoSF.png" alt="Logo Rastreo de flotas" class="img-fluid"
-            style="max-height: 50px ;">
-          <span class="fs-5" id="nombreEmpresa"> GeoBuild S.A. </span>
+          <img src="../img/iconoSF.png" alt="Logo" class="img-fluid" style="max-height: 50px;">
+          <span class="fs-5">GeoBuild S.A.</span>
         </a>
       </div>
-
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><a href="../index.html" class="nav-link px-2">Inicio</a></li>
         <li><a href="personal.html" class="nav-link px-2">Gestión de Personal</a></li>
         <li><a href="vehiculos.html" class="nav-link active px-2">Gestión Vehicular</a></li>
         <li><a href="monitoreo.html" class="nav-link px-2">Centro de Monitoreo</a></li>
       </ul>
-
       <div class="col-md-3 text-end">
-        <button type="button" class="btn btn-primary" id="salir">
-          <a href="logueo.html" class="nav-link px-2">Cerrar Sesion</a>
-        </button>
+        <button type="button" class="btn btn-primary" id="salir">Cerrar Sesión</button>
       </div>
     </header>
   </div>
   <hr>
 
- <main>
-  <div class="card">
-    <!-- <div class="search-bar">
-      <input type="text" id="busquedaVehiculo" placeholder="Buscar por patente o marca..." />
-      <button onclick="buscarVehiculo()">Buscar</button>
-    </div> -->
-    <div class="actions">
-      <button type="button" class="btn btn-primary">
-        <a href="cargarVehiculo.html">Agregar Vehiculo</a>
-      </button>
+  <main class="container">
+    <div class="card">
+      <div class="actions mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalVehiculo">
+          Agregar Vehículo
+        </button>
+      </div>
+      <h2>Vehículos Registrados:</h2>
+      <table id="vehiculoTable">
+        <thead>
+          <tr>
+            <th>Patente</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Combustible</th>
+            <th>Kilometraje</th>
+            <th>Fecha RTO</th>
+            <th>Equipamiento</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="vehiculoTableBody"></tbody>
+      </table>
     </div>
-    <h2>Vehículos Registrados:</h2>
-    <table id="vehiculoTable">
-      <thead>
-        <tr>
-          <th>Patente</th>
-          <th>Marca</th>
-          <th>Modelo</th>
-          <th>Combustible</th>
-          <th>Kilometraje</th>
-          <th>RTO</th>
-          <th>Equipamiento</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="vehiculoTableBody">
-        <!-- Los pasajeros se cargarán dinámicamente con JavaScript -->
-      </tbody>
-    </table>
+  </main>
+
+  <!-- Modal Vehículo -->
+  <div class="modal fade" id="modalVehiculo" tabindex="-1" aria-labelledby="modalVehiculoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="vehiculoForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalVehiculoLabel">Registrar Vehículo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-2">
+              <label for="patente" class="form-label">Patente</label>
+              <input type="text" id="patente" name="patente" class="form-control" required maxlength="7">
+            </div>
+            <div class="mb-2">
+              <label for="marca" class="form-label">Marca</label>
+              <input type="text" id="marca" name="marca" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="modelo" class="form-label">Modelo</label>
+              <input type="text" id="modelo" name="modelo" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="combustible" class="form-label">Combustible</label>
+              <select id="combustible" name="combustible" class="form-select" required>
+                <option value="">Seleccione una opción</option>
+                <option value="Nafta">Nafta</option>
+                <option value="Diesel">Diesel</option>
+                <option value="GNC">GNC</option>
+                <option value="Eléctrico">Eléctrico</option>
+                <option value="Híbrido">Híbrido</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label for="kilometraje" class="form-label">Kilometraje</label>
+              <input type="number" id="kilometraje" name="kilometraje" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="rto" class="form-label">Fecha RTO</label>
+              <input type="date" id="rto" name="rto" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label for="equipamiento" class="form-label">Equipamiento</label>
+              <textarea id="equipamiento" name="equipamiento" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
- </main>
 
-
-  <!-- Footer -->
-  <footer class=" py-3 my-4 border-top">
-    <!-- DERECHOS DE AUTOR -->
-    <div>
-      <p class="creditos">&copy; 2025 Desarrollo de Software, ITU-UNCUYO</p>
-    </div>
+  <footer class="py-3 my-4 border-top text-center">
+    <p class="text-muted mb-0">&copy; 2025 Desarrollo de Software - ITU UNCuyo</p>
   </footer>
-  <script src="../js/script.js"></script>
+
   <script src="../js/bootstrap.js"></script>
 </body>
 

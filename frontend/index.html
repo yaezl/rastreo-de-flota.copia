@@ -14,19 +14,9 @@
   <!-- ICON DE LA PÁGINA -->
   <link rel="shortcut icon" href="img/iconoSF.png" type="image/x-icon">
   <title>Sistema de Rastreo de Flotas</title>
-    <!-- SCRIPT -->
-     <script>
-      const ruta = window.location.pathname;
-      const esLogin = ruta.includes('logueo.html');
-      const esVerificacion = ruta.includes('verificacion.html');
-    
-      const verificado = sessionStorage.getItem("verificacion_completa") === "true";
-      const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
-    
-      if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
-        window.location.replace("templates/logueo.html");
-      }
-    </script>  
+  <!-- JS -->
+  <script src="js/bootstrap.js"></script>
+  <script src="js/script.js"></script>
 </head>
 
 <body>
@@ -43,9 +33,9 @@
 
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><a href="index.html" class="nav-link active px-2">Inicio</a></li>
-        <li><a href="./templates/personal.html" class="nav-link px-2">Gestión de Personal</a></li>
-        <li><a href="./templates/vehiculos.html" class="nav-link px-2">Gestión Vehicular</a></li>
-        <li><a href="./templates/monitoreo.html" class="nav-link px-2">Centro de Monitoreo</a></li>
+        <li><a href="templates/personal.html" class="nav-link px-2">Gestión de Personal</a></li>
+        <li><a href="templates/vehiculos.html" class="nav-link px-2">Gestión Vehicular</a></li>
+        <li><a href="templates/monitoreo.html" class="nav-link px-2">Centro de Monitoreo</a></li>
       </ul>
 
       <div class="col-md-3 text-end">
@@ -131,23 +121,6 @@
       <p class="creditos">&copy; 2025 Desarrollo de Software, ITU-UNCUYO</p>
     </div>
   </footer>
-
-<script src="js/script.js"></script>
-<script src="js/bootstrap.js"></script>
-
-
- <script>
-  // Verificar si el usuario ha completado la verificación
-  window.addEventListener('DOMContentLoaded', function() {
-    const verificacionCompleta = sessionStorage.getItem("verificacion_completa") === "true";
-    
-    if (!verificacionCompleta) {
-      // Si no ha completado la verificación, redirigir
-      window.location.replace("templates/verificacion.html");
-    }
-  });
-</script> 
-
 </body>
 
 </html>

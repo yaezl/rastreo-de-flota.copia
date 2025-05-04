@@ -94,7 +94,7 @@ function validarPatente(patente) {
 }
 
 function validarCategoriaLic(cat) {
-  return /^[A-Za-z]{1,3}$/.test(cat);
+  return /^[A-Za-z]{1,2}[0-9]{0,2}$/.test(cat);
 }
 
 function alertaFechas() {
@@ -171,28 +171,31 @@ async function guardarConductor(e) {
   try {
     const f = new FormData(e.target);
     const dni = f.get('dni');
-    const categoriaLic = f.get('categoriaLic').toUpperCase();
-    
+    const categoriaLicRaw = f.get('categoriaLic');
+    const categoriaLic = categoriaLicRaw ? categoriaLicRaw.toUpperCase() : '';
+
     if (!validarDNI(dni)) {
       alert('DNI inválido. Debe contener al menos 7 dígitos.');
       return;
     }
-    
+
     if (!validarCategoriaLic(categoriaLic)) {
       alert('Categoría de licencia inválida. Debe contener de 1 a 3 letras.');
       return;
     }
-    
+
     const obj = Object.fromEntries(f);
     obj.categoriaLic = categoriaLic;
-    
-    console.log("Guardando conductor:", obj);
-    
-    const endpoint = document.getElementById('dni').readOnly ? `conductores/${dni}` : `conductores`;
-    const method = dni && document.getElementById('dni').readOnly ? 'PUT' : 'POST';
-    
+
+    const formElement = document.getElementById('conductorForm');
+    const dniOriginal = formElement.getAttribute('data-editando-dni');
+    const esEdicion = !!dniOriginal;
+
+    const endpoint = esEdicion ? `conductores/${dniOriginal}` : 'conductores';
+    const method = esEdicion ? 'PUT' : 'POST';
+
     await fetchAPI(endpoint, method, obj);
-    
+
     const modalEl = document.getElementById('modalConductor');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) {
@@ -203,7 +206,8 @@ async function guardarConductor(e) {
       document.body.classList.remove('modal-open');
       document.querySelector('.modal-backdrop')?.remove();
     }
-    
+
+    formElement.removeAttribute('data-editando-dni');
     await cargarConductores();
     alert(method === 'PUT' ? 'Conductor actualizado correctamente' : 'Conductor agregado correctamente');
   } catch (e) {
@@ -212,6 +216,7 @@ async function guardarConductor(e) {
   }
 }
 
+
 function editarConductor(dni) {
   try {
     console.log("Editando conductor con DNI:", dni);
@@ -219,14 +224,16 @@ function editarConductor(dni) {
       const f = document.getElementById('conductorForm');
       f.reset();
       f.dni.value = data.dni;
-      f.dni.readOnly = true;
       f.nombreCompleto.value = data.nombreCompleto;
       f.codigoPostal.value = data.codigoPostal;
       f.domicilio.value = data.domicilio;
       f.vencimientoLic.value = data.vencimientoLic?.split('T')[0] || '';
-      f.categoriaLic.value = data.categoriaLic;
-      f.vehiculo.value = data.vehiculo || '';
-      
+      f.categoriaLic.value = data.categoriaLic || '';
+      f.vehiculo.value = typeof data.vehiculo === 'object' ? data.vehiculo?.patente || '' : data.vehiculo || '';
+
+      // Guardamos el dni original por si lo cambian
+      f.setAttribute('data-editando-dni', data.dni);
+
       const modal = new bootstrap.Modal(document.getElementById('modalConductor'));
       modal.show();
     }).catch(err => {
@@ -289,20 +296,23 @@ async function guardarPasajero(e) {
   try {
     const f = new FormData(e.target);
     const dni = f.get('dni');
-    
+
     if (!validarDNI(dni)) {
       alert('DNI inválido. Debe contener al menos 7 dígitos.');
       return;
     }
-    
+
     const obj = Object.fromEntries(f);
-    console.log("Guardando pasajero:", obj);
-    
-    const endpoint = document.getElementById('dni').readOnly ? `pasajeros/${dni}` : `pasajeros`;
-    const method = dni && document.getElementById('dni').readOnly ? 'PUT' : 'POST';
-    
+
+    const formElement = document.getElementById('pasajeroForm');
+    const dniOriginal = formElement.getAttribute('data-editando-dni');
+    const esEdicion = !!dniOriginal;
+
+    const endpoint = esEdicion ? `pasajeros/${dniOriginal}` : 'pasajeros';
+    const method = esEdicion ? 'PUT' : 'POST';
+
     await fetchAPI(endpoint, method, obj);
-    
+
     const modalEl = document.getElementById('modalPasajero');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) {
@@ -313,7 +323,8 @@ async function guardarPasajero(e) {
       document.body.classList.remove('modal-open');
       document.querySelector('.modal-backdrop')?.remove();
     }
-    
+
+    formElement.removeAttribute('data-editando-dni');
     await cargarPasajeros();
     alert(method === 'PUT' ? 'Pasajero actualizado correctamente' : 'Pasajero agregado correctamente');
   } catch (e) {
@@ -329,12 +340,16 @@ function editarPasajero(dni) {
       const f = document.getElementById('pasajeroForm');
       f.reset();
       f.dni.value = data.dni;
-      f.dni.readOnly = true;
       f.nombreCompleto.value = data.nombreCompleto;
       f.codigoPostal.value = data.codigoPostal;
       f.domicilio.value = data.domicilio;
-      f.vehiculoasignado.value = data.vehiculoasignado || '';
-      
+      f.vehiculoasignado.value = typeof data.vehiculoasignado === 'object'
+        ? data.vehiculoasignado?.patente || ''
+        : data.vehiculoasignado || '';
+
+      // Guardamos el dni original por si lo cambian
+      f.setAttribute('data-editando-dni', data.dni);
+
       const modal = new bootstrap.Modal(document.getElementById('modalPasajero'));
       modal.show();
     }).catch(err => {
@@ -399,22 +414,25 @@ async function guardarVehiculo(e) {
   e.preventDefault();
   try {
     const f = new FormData(e.target);
-    let patente = f.get('patente').toUpperCase();
-    
+    let patente = f.get('patente')?.toUpperCase();
+
     if (!validarPatente(patente)) {
       alert('Patente inválida. Debe contener entre 1 y 7 caracteres alfanuméricos.');
       return;
     }
-    
+
     const obj = Object.fromEntries(f);
     obj.patente = patente;
-    console.log("Guardando vehículo:", obj);
-    
-    const endpoint = document.getElementById('patente').readOnly ? `vehiculos/${patente}` : `vehiculos`;
-    const method = patente && document.getElementById('patente').readOnly ? 'PUT' : 'POST';
-    
+
+    const formElement = document.getElementById('vehiculoForm');
+    const patenteOriginal = formElement.getAttribute('data-editando-patente');
+    const esEdicion = !!patenteOriginal;
+
+    const endpoint = esEdicion ? `vehiculos/${patenteOriginal}` : 'vehiculos';
+    const method = esEdicion ? 'PUT' : 'POST';
+
     await fetchAPI(endpoint, method, obj);
-    
+
     const modalEl = document.getElementById('modalVehiculo');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) {
@@ -425,7 +443,8 @@ async function guardarVehiculo(e) {
       document.body.classList.remove('modal-open');
       document.querySelector('.modal-backdrop')?.remove();
     }
-    
+
+    formElement.removeAttribute('data-editando-patente');
     await cargarVehiculos();
     alert(method === 'PUT' ? 'Vehículo actualizado correctamente' : 'Vehículo agregado correctamente');
   } catch (e) {
@@ -441,14 +460,16 @@ function editarVehiculo(patente) {
       const f = document.getElementById('vehiculoForm');
       f.reset();
       f.patente.value = data.patente;
-      f.patente.readOnly = true;
       f.marca.value = data.marca;
       f.modelo.value = data.modelo;
       f.combustible.value = data.combustible;
       f.kilometraje.value = data.kilometraje;
       f.rto.value = data.rto?.split('T')[0] || '';
       f.equipamiento.value = data.equipamiento || '';
-      
+
+      // Guardamos la patente original por si la cambian
+      f.setAttribute('data-editando-patente', data.patente);
+
       const modal = new bootstrap.Modal(document.getElementById('modalVehiculo'));
       modal.show();
     }).catch(err => {

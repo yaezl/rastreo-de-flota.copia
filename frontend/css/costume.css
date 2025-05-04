@@ -10,7 +10,12 @@ html{
 
 /* Estilos Importantes */
 body {
+    height: 100%;
     background-color: #F1ECE7;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
     /* font-family: 'Russo One'; */
 }
 
@@ -92,6 +97,16 @@ body {
     transform: scale(1.05);
     transition: transform 0.3s;
 }
+
+/* Mapa */
+#map {
+    height: 10cm;
+    width: 10cm;
+    width: 50%;
+    float: right;
+    margin: 20px 0;
+    border: 2px solid #ccc;
+  }
 
 /* Footer */
 footer{

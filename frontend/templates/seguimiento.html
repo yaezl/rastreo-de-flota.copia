@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento del Conductor</title>
+  <link rel="stylesheet" href="../css/bootstrap.css">
+  <link rel="stylesheet" href="../css/costume.css">
+  <link rel="stylesheet" href="../css/cruds.css">
+  <link rel="manifest" href="/frontend/manifest.json">
+  <meta name="theme-color" content="#004643">
+</head>
+<body>
+  <div class="container">
+    <header class="d-flex align-items-center justify-content-between py-3 mb-4 border-bottom">
+      <a href="#" class="navbar-brand d-flex align-items-center">
+        <img src="../img/iconoSF.png" alt="Logo" class="img-fluid" style="max-height: 50px;">
+        <span class="fs-5" id="nombreEmpresa">GeoBuild S.A.</span>
+      </a>
+    </header>
+  </div>
+
+  <main class="container">
+    <div class="card text-center">
+      <h2>Seguimiento de Jornada</h2>
+      <p id="estado">Procesando datos...</p>
+      <div id="info" style="margin-top: 20px;"></div>
+    </div>
+  </main>
+
+  <footer class="py-3 my-4 border-top">
+    <div>
+      <p class="creditos">&copy; 2025 GeoBuild S.A.</p>
+    </div>
+  </footer>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const dni = params.get("dni");
+
+    if (!dni) {
+      document.getElementById("estado").innerText = "Acceso inválido: falta el DNI en la URL.";
+      throw new Error("Falta DNI");
+    }
+
+    document.getElementById("estado").innerText = "Esperando permiso para acceder a tu ubicación...";
+
+    function enviarUbicacion(lat, lng) {
+      fetch("https://tubackend.com/api/ubicacion", { // Cambiar por tu endpoint real
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          dni: dni,
+          latitud: lat,
+          longitud: lng,
+          timestamp: new Date().toISOString()
+        })
+      }).catch(err => {
+        console.error("Error al enviar ubicación:", err);
+      });
+    }
+
+    function iniciarSeguimiento() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          document.getElementById("estado").innerText = "Ubicación compartiéndose en tiempo real ✅";
+          document.getElementById("info").innerHTML = `
+            <strong>Lat:</strong> ${lat.toFixed(6)}<br>
+            <strong>Lng:</strong> ${lng.toFixed(6)}
+          `;
+
+          enviarUbicacion(lat, lng);
+        }, err => {
+          document.getElementById("estado").innerText = "Error al obtener ubicación ❌";
+          console.error(err);
+        }, {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 10000
+        });
+      } else {
+        document.getElementById("estado").innerText = "Tu navegador no soporta geolocalización ❌";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      iniciarSeguimiento();
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/frontend/service-worker.js')
+        .then(reg => console.log('Service Worker registrado', reg))
+        .catch(err => console.error('Error registrando SW', err));
+    }
+  </script>
+</body>
+</html>

@@ -25,6 +25,7 @@
       <h2>Seguimiento de Jornada</h2>
       <p id="estado">Procesando datos...</p>
       <div id="info" style="margin-top: 20px;"></div>
+      <button id="btn-instalar" class="btn btn-primary mt-3" style="display:none;">📲 Instalar App</button>
     </div>
   </main>
 
@@ -91,14 +92,39 @@
     document.addEventListener("DOMContentLoaded", () => {
       iniciarSeguimiento();
     });
-  </script>
 
-  <script>
+    // Registro del service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/frontend/service-worker.js')
         .then(reg => console.log('Service Worker registrado', reg))
         .catch(err => console.error('Error registrando SW', err));
     }
+
+    // Manejo del botón de instalación
+    let deferredPrompt;
+    const btnInstalar = document.getElementById("btn-instalar");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstalar.style.display = "inline-block";
+    });
+
+    btnInstalar.addEventListener("click", () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Instalación aceptada ✅');
+          } else {
+            console.log('Instalación rechazada ❌');
+          }
+          deferredPrompt = null;
+          btnInstalar.style.display = "none";
+        });
+      }
+    });
   </script>
 </body>
 </html>
+

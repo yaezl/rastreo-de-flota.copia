@@ -14,34 +14,20 @@
   <!-- ICON DE LA PÁGINA -->
   <link rel="shortcut icon" href="../img/iconoSF.png" type="image/x-icon">
   <title>Sistema de Rastreo de Flotas</title>
-    <!-- SCRIPT -->
-    <script>
-      const ruta = window.location.pathname;
-      const esLogin = ruta.includes('logueo.html');
-      const esVerificacion = ruta.includes('verificacion.html');
-    
-      const verificado = sessionStorage.getItem("verificacion_completa") === "true";
-      const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
-    
-      if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
-        window.location.replace("logueo.html");
-      }
-    </script>  
-    <!-- SCRIPT MAPA -->    
-    <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArifzqYFkv6deJgQqMAsB2Www-2NnpNVg&callback=initMap">
-    </script>
+  <!-- SCRIPT DE VERIFICACIÓN DE SESIÓN -->
   <script>
-    function initMap() {
-      const mendozaCapital = { lat: -32.8908, lng: -68.8272 };
+    const ruta = window.location.pathname;
+    const esLogin = ruta.includes('logueo.html');
+    const esVerificacion = ruta.includes('verificacion.html');
   
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 12, // Zoom adecuado para una ciudad
-        center: mendozaCapital,
-        mapTypeId: "roadmap"
-      });
-      }
-  </script>    
+    const verificado = sessionStorage.getItem("verificacion_completa") === "true";
+    const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
+  
+    if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
+      window.location.replace("logueo.html");
+    }
+  </script>  
+ 
 </head>
 
 <body>
@@ -51,7 +37,7 @@
       <div class="col-md-3 mb-2 mb-md-0">
         <a href="#" class="navbar-brand d-flex align-items-center">
           <img src="../img/iconoSF.png" alt="Logo Rastreo de flotas" class="img-fluid"
-            style="max-height: 50px ;">
+            style="max-height: 50px;">
           <span class="fs-5" id="nombreEmpresa"> GeoBuild S.A. </span>
         </a>
       </div>
@@ -72,22 +58,282 @@
   </div>
   <hr>
 
-  <div class="container">
+  <div class="main-container">
+    <div class="sidebar">
+        <div class="control-panel">
+            <h3>Control de Rutas</h3>
+            <div>
+                <label for="start">Origen:</label>
+                <input type="text" id="start" placeholder="Punto de origen">
+            </div>
+            <div>
+                <label for="end">Destino:</label>
+                <input type="text" id="end" placeholder="Punto de destino">
+            </div>
+            <div>
+                <label for="transport-mode">Modo de transporte:</label>
+                <select id="transport-mode">
+                    <option value="DRIVING">Automóvil</option>
+                    <option value="WALKING">Caminando</option>
+                    <option value="BICYCLING">Bicicleta</option>
+                    <option value="TRANSIT">Transporte público</option>
+                </select>
+            </div>
+            <button id="calculate-route">Calcular Ruta</button>
+            <button id="clear-route">Limpiar Ruta</button>
+        </div>
+        
+        <div class="route-info" id="route-info">
+            <h3>Información de la Ruta</h3>
+            <div id="distance">Distancia: --</div>
+            <div id="duration">Tiempo estimado: --</div>
+        </div>
+        
+        <div class="vehicle-list">
+            <h3>Vehículos Monitoreados</h3>
+            <div class="vehicle-item" data-lat="-32.8897" data-lng="-68.8458">
+                Vehículo 1 - Unidad A-01
+            </div>
+            <div class="vehicle-item" data-lat="-32.9195" data-lng="-68.8465">
+                Vehículo 2 - Unidad B-15
+            </div>
+            <div class="vehicle-item" data-lat="-32.8726" data-lng="-68.8532">
+                Vehículo 3 - Unidad C-22
+            </div>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+</div>
+  <!-- <div class="container">
     <h3>Centro de Monitoreo</h3>
+    <div class="row mb-3">
+      <div class="col">
+        <div class="card bg-light">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Choferes activos</h5>
+              <span id="contadorChoferes" class="badge bg-primary">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <button id="actualizarDatos" class="btn btn-primary">Actualizar datos</button>
+        <button id="centrarMapa" class="btn btn-secondary">Centrar mapa</button>
+      </div>
+    </div>
   </div>
   
-  <div id="map"></div>
+  <div style="display: flex; height: 70vh;">
+    <div id="choferPanel" style="width: 300px; overflow-y: auto; padding: 10px; border-right: 1px solid #ccc;">
+      <h5>Choferes en movimiento</h5>
+      <div class="mb-2">
+        <input type="text" id="buscarChofer" class="form-control" placeholder="Buscar chofer...">
+      </div>
+      <ul id="choferes" class="list-group"></ul>
+    </div>
+    <div id="map" style="flex-grow: 1;"></div>
+  </div> -->
+  
+  <script>
+    // Variables globales
+    let map;
+    let directionsService;
+    let directionsRenderer;
+    let markers = [];
+    
+    // Inicializar el mapa cuando la API de Google Maps se cargue
+    function initMap() {
+        // Coordenadas centrales (Ciudad de México como ejemplo)
+        const center = { lat: -32.8897, lng: -68.8458 };
+        
+        // Configuración del mapa
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: center,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position: google.maps.ControlPosition.TOP_RIGHT
+            },
+            fullscreenControl: true,
+            streetViewControl: true,
+            zoomControl: true
+        });
+        
+        // Inicializar servicios de direcciones
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: false,
+            polylineOptions: {
+                strokeColor: '#3498db',
+                strokeWeight: 5
+            }
+        });
+        
+        // Inicializar vehículos de muestra
+        initVehicles();
+        
+        // Configurar event listeners
+        document.getElementById('calculate-route').addEventListener('click', calculateRoute);
+        document.getElementById('clear-route').addEventListener('click', clearRoute);
+        
+        // Listener para los vehículos
+        const vehicleItems = document.querySelectorAll('.vehicle-item');
+        vehicleItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remover clase activa de todos los vehículos
+                vehicleItems.forEach(v => v.classList.remove('active'));
+                // Agregar clase activa al vehículo seleccionado
+                this.classList.add('active');
+                
+                // Obtener coordenadas del vehículo
+                const lat = parseFloat(this.getAttribute('data-lat'));
+                const lng = parseFloat(this.getAttribute('data-lng'));
+                
+                // Centrar mapa en el vehículo
+                map.setCenter({ lat, lng });
+                map.setZoom(15);
+            });
+        });
+        
+        // Actualizar la hora
+        updateTime();
+        setInterval(updateTime, 1000);
+    }
+    
+    // Función para inicializar vehículos de muestra
+    function initVehicles() {
+        // Limpiar marcadores existentes
+        clearMarkers();
+        
+        // Obtener vehículos
+        const vehicles = document.querySelectorAll('.vehicle-item');
+        
+        // Crear marcadores para cada vehículo
+        vehicles.forEach((vehicle, index) => {
+            const lat = parseFloat(vehicle.getAttribute('data-lat'));
+            const lng = parseFloat(vehicle.getAttribute('data-lng'));
+            
+            const marker = new google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                title: vehicle.textContent.trim(),
+                label: (index + 1).toString(),
+                animation: google.maps.Animation.DROP
+            });
+            
+            // Agregar infowindow
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div><strong>${vehicle.textContent.trim()}</strong><br>Coordenadas: ${lat}, ${lng}</div>`
+            });
+            
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+            
+            markers.push(marker);
+        });
+    }
+    
+    // Función para calcular ruta
+    function calculateRoute() {
+        const start = document.getElementById('start').value;
+        const end = document.getElementById('end').value;
+        const mode = document.getElementById('transport-mode').value;
+        
+        if (!start || !end) {
+            alert('Por favor ingresa un origen y un destino.');
+            return;
+        }
+        
+        const request = {
+            origin: start,
+            destination: end,
+            travelMode: google.maps.TravelMode[mode]
+        };
+        
+        directionsService.route(request, (result, status) => {
+            if (status === google.maps.DirectionsStatus.OK) {
+                directionsRenderer.setDirections(result);
+                
+                // Mostrar información de la ruta
+                const route = result.routes[0];
+                let distance = 0;
+                let duration = 0;
+                
+                // Sumar distancias y duraciones
+                for (let i = 0; i < route.legs.length; i++) {
+                    distance += route.legs[i].distance.value;
+                    duration += route.legs[i].duration.value;
+                }
+                
+                // Convertir a kilómetros y minutos
+                distance = (distance / 1000).toFixed(2);
+                duration = Math.round(duration / 60);
+                
+                // Actualizar la información en el panel
+                document.getElementById('distance').textContent = `Distancia: ${distance} km`;
+                document.getElementById('duration').textContent = `Tiempo estimado: ${duration} minutos`;
+            } else {
+                alert('No se pudo calcular la ruta: ' + status);
+            }
+        });
+    }
+    
+    // Función para limpiar ruta
+    function clearRoute() {
+        directionsRenderer.setDirections({ routes: [] });
+        document.getElementById('start').value = '';
+        document.getElementById('end').value = '';
+        document.getElementById('distance').textContent = 'Distancia: --';
+        document.getElementById('duration').textContent = 'Tiempo estimado: --';
+    }
+    
+    // Función para limpiar marcadores
+    function clearMarkers() {
+        for (let marker of markers) {
+            marker.setMap(null);
+        }
+        markers = [];
+    }
+    
+    // Función para actualizar la hora
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        document.getElementById('current-time').textContent = timeString;
+    }
+</script>
+
+
+<script async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArifzqYFkv6deJgQqMAsB2Www-2NnpNVg&callback=initMap">
+    </script>
+
+
+
+
+
+
+
+
+
+
 
   <!-- Footer -->
-  <footer class=" py-3 my-4 border-top">
+  <footer class="py-3 my-4 border-top">
     <!-- DERECHOS DE AUTOR -->
-    <div>
+    <div class="container text-center">
       <p class="creditos">&copy; 2025 Desarrollo de Software, ITU-UNCUYO</p>
     </div>
   </footer>
-  <script src="../js/script.js"></script>
-  <script src="../js/bootstrap.js"></script>
   
+  <script src="../js/bootstrap.js"></script>
 </body>
-
 </html>

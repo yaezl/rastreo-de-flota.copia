@@ -11,3 +11,4 @@ self.addEventListener('install', event => {
     // Permite que todo pase por el navegador normalmente
   });
   
+ 

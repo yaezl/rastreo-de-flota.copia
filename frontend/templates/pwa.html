@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compartir Ubicación - GeoBuild S.A.</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#007bff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="../img/iconoSF.png">
+  
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding-top: 20px;
+    }
+    .status-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .status-on {
+      background-color: #28a745;
+      box-shadow: 0 0 10px #28a745;
+    }
+    .status-off {
+      background-color: #dc3545;
+    }
+    .status-connecting {
+      background-color: #ffc107;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div>
+          <img src="../img/iconoSF.png" alt="Logo" style="height: 30px; margin-right: 10px;">
+          GeoBuild S.A.
+        </div>
+        <div>
+          <span class="status-indicator status-off" id="statusIndicator"></span>
+          <span id="statusText">Desconectado</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title" id="welcomeMessage">Cargando...</h5>
+        
+        <div class="alert alert-info" role="alert">
+          Al activar el seguimiento, su ubicación será compartida con GeoBuild S.A. para fines de monitoreo de flota.
+        </div>
+        
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="toggleTracking">
+          <label class="form-check-label" for="toggleTracking">Activar seguimiento</label>
+        </div>
+        
+        <div id="locationInfo" class="alert alert-secondary d-none">
+          <p><strong>Última ubicación enviada:</strong></p>
+          <p id="latitud">Latitud: --</p>
+          <p id="longitud">Longitud: --</p>
+          <p id="timestamp">Hora: --</p>
+          <p id="precision">Precisión: --</p>
+        </div>
+        
+        <div class="progress mb-3 d-none" id="progressContainer">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width: 0%"></div>
+        </div>
+        
+        <div class="d-grid gap-2">
+          <button id="refreshBtn" class="btn btn-secondary d-none">Actualizar ahora</button>
+          <button id="logoutBtn" class="btn btn-outline-danger">Cerrar sesión</button>
+        </div>
+      </div>
+      <div class="card-footer text-muted">
+        <small>Versión 1.0.0 | &copy; 2025 GeoBuild S.A.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registrado'))
+        .catch(err => console.error('Error al registrar Service Worker', err));
+    }
+  </script>
+  
+  <!-- Supabase -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    
+    const supabaseUrl = 'https://clrawvfedwpywhdcckok.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNscmF3dmZlZHdweXdoZGNja29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Mjk4OTQsImV4cCI6MjA1OTEwNTg5NH0.Xheegka1x9BaGjHHJUrWLhdGY6yhPfRlzJd5_wfb13U';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Obtener el DNI del chofer de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const dniChofer = urlParams.get('dni');
+    
+    // Variables para el tracking
+    let trackingEnabled = false;
+    let watchId = null;
+    let choferInfo = null;
+    let updateInterval = null;
+    const INTERVAL_TIME = 30000; // 30 segundos
+    
+    // Elementos DOM
+    const toggleTracking = document.getElementById('toggleTracking');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const statusText = document.getElementById('statusText');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const locationInfo = document.getElementById('locationInfo');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    
+    // Verificar DNI y cargar información del chofer
+    async function verificarChofer() {
+      if (!dniChofer) {
+        alert('No se proporcionó un DNI válido. Contacte a su supervisor.');
+        return;
+      }
+      
+      // Cambiar estado a "Conectando"
+      setStatus('connecting');
+      
+      // Consultar si existe el chofer con este DNI
+      const { data, error } = await supabase
+        .from('Chofer')
+        .select('*')
+        .eq('dni', dniChofer)
+        .single();
+      
+      if (error || !data) {
+        setStatus('off');
+        alert('No se encontró un chofer registrado con este DNI. Contacte a su supervisor.');
+        return;
+      }
+      
+      // Guardar información del chofer
+      choferInfo = data;
+      welcomeMessage.textContent = `Bienvenido, ${choferInfo.nombre}`;
+      
+      setStatus('off');
+      refreshBtn.classList.remove('d-none');
+      
+      console.log('Chofer verificado:', choferInfo);
+    }
+    
+    // Cambiar indicador de estado
+    function setStatus(status) {
+      statusIndicator.className = 'status-indicator';
+      
+      switch (status) {
+        case 'on':
+          statusIndicator.classList.add('status-on');
+          statusText.textContent = 'Conectado';
+          break;
+        case 'off':
+          statusIndicator.classList.add('status-off');
+          statusText.textContent = 'Desconectado';
+          break;
+        case 'connecting':
+          statusIndicator.classList.add('status-connecting');
+          statusText.textContent = 'Conectando...';
+          break;
+      }
+    }
+    
+    // Iniciar seguimiento de ubicación
+    function iniciarSeguimiento() {
+      if (!choferInfo) {
+        alert('No se puede iniciar el seguimiento. Verifique su identidad primero.');
+        toggleTracking.checked = false;
+        return;
+      }
+      
+      if (!navigator.geolocation) {
+        alert('Su navegador no soporta geolocalización');
+        toggleTracking.checked = false;
+        return;
+      }
+      
+      // Solicitar permisos y comenzar seguimiento
+      setStatus('connecting');
+      locationInfo.classList.remove('d-none');
+      
+      watchId = navigator.geolocation.watchPosition(
+        // Éxito
+        async position => {
+          setStatus('on');
+          
+          const { latitude, longitude, accuracy, timestamp } = position.coords;
+          const formattedTime = new Date(timestamp).toLocaleString();
+          
+          // Actualizar UI
+          document.getElementById('latitud').textContent = `Latitud: ${latitude.toFixed(6)}`;
+          document.getElementById('longitud').textContent = `Longitud: ${longitude.toFixed(6)}`;
+          document.getElementById('timestamp').textContent = `Hora: ${formattedTime}`;
+          document.getElementById('precision').textContent = `Precisión: ${accuracy.toFixed(1)} metros`;
+          
+          // Enviar a Supabase
+          await enviarUbicacion(latitude, longitude, timestamp);
+          
+          // Iniciar temporizador para actualizaciones periódicas si no está activo
+          if (!updateInterval) {
+            iniciarActualizacionPeriodica();
+          }
+        },
+        // Error
+        error => {
+          console.error('Error obteniendo ubicación:', error);
+          setStatus('off');
+          
+          let mensaje = 'Error desconocido al obtener ubicación.';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              mensaje = 'Debe permitir el acceso a su ubicación para usar esta aplicación.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              mensaje = 'La información de ubicación no está disponible.';
+              break;
+            case error.TIMEOUT:
+              mensaje = 'Se agotó el tiempo para obtener su ubicación.';
+              break;
+          }
+          
+          alert(mensaje);
+          toggleTracking.checked = false;
+          detenerSeguimiento();
+        },
+        // Opciones
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+    
+    // Detener seguimiento de ubicación
+    function detenerSeguimiento() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      
+      if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+      }
+      
+      setStatus('off');
+      progressContainer.classList.add('d-none');
+    }
+    
+    // Enviar ubicación a Supabase
+    async function enviarUbicacion(lat, lng, timestamp) {
+      try {
+        // Añadir registro en la tabla Ubicacion
+        const { data, error } = await supabase
+          .from('Ubicacion')
+          .insert([
+            {
+              choferId: choferInfo.id,
+              lat: lat,
+              lng: lng,
+              timestamp: new Date(timestamp).toISOString(),
+              estado: 'activo'
+            }
+          ]);
+        
+        if (error) throw error;
+        console.log('Ubicación enviada correctamente');
+        
+      } catch (error) {
+        console.error('Error al enviar ubicación:', error);
+      }
+    }
+    
+    // Iniciar temporizador para actualizaciones periódicas
+    function iniciarActualizacionPeriodica() {
+      if (updateInterval) clearInterval(updateInterval);
+      
+      // Mostrar barra de progreso
+      progressContainer.classList.remove('d-none');
+      resetProgressBar();
+      
+      // Configurar intervalo
+      updateInterval = setInterval(() => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async position => {
+              const { latitude, longitude, timestamp } = position.coords;
+              await enviarUbicacion(latitude, longitude, timestamp);
+              resetProgressBar();
+            },
+            error => console.error('Error al actualizar ubicación:', error)
+          );
+        }
+      }, INTERVAL_TIME);
+      
+      // Animación de la barra de progreso
+      animateProgressBar();
+    }
+    
+    // Resetear barra de progreso
+    function resetProgressBar() {
+      progressBar.style.width = '0%';
+      animateProgressBar();
+    }
+    
+    // Animar barra de progreso
+    function animateProgressBar() {
+      let progress = 0;
+      const interval = 100; // Actualizar cada 100ms
+      const steps = INTERVAL_TIME / interval;
+      const increment = 100 / steps;
+      
+      const animation = setInterval(() => {
+        progress += increment;
+        if (progress >= 100) {
+          clearInterval(animation);
+        } else {
+          progressBar.style.width = `${progress}%`;
+        }
+      }, interval);
+    }
+    
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // Verificar chofer al cargar
+      verificarChofer();
+      
+      // Toggle de tracking
+      toggleTracking.addEventListener('change', e => {
+        trackingEnabled = e.target.checked;
+        
+        if (trackingEnabled) {
+          iniciarSeguimiento();
+        } else {
+          detenerSeguimiento();
+        }
+      });
+      
+      // Botón de actualización manual
+      refreshBtn.addEventListener('click', () => {
+        if (!trackingEnabled) {
+          navigator.geolocation.getCurrentPosition(
+            async position => {
+              const { latitude, longitude, timestamp } = position.coords;
+              await enviarUbicacion(latitude, longitude, timestamp);
+              alert('Ubicación actualizada manualmente');
+            },
+            error => alert('Error al obtener ubicación: ' + error.message)
+          );
+        } else {
+          alert('La ubicación ya se está enviando automáticamente');
+        }
+      });
+      
+      // Botón de cerrar sesión
+      logoutBtn.addEventListener('click', () => {
+        if (trackingEnabled) {
+          if (confirm('¿Está seguro de que desea cerrar sesión? Se detendrá el envío de su ubicación.')) {
+            detenerSeguimiento();
+            window.location.href = 'login.html';
+          }
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -15,7 +15,7 @@
   <link rel="shortcut icon" href="../img/iconoSF.png" type="image/x-icon">
   <title>Sistema de Rastreo de Flotas</title>
   <!-- SCRIPT DE VERIFICACIÓN DE SESIÓN -->
-  <script>
+ <!--  <script>
     const ruta = window.location.pathname;
     const esLogin = ruta.includes('logueo.html');
     const esVerificacion = ruta.includes('verificacion.html');
@@ -26,7 +26,7 @@
     if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
       window.location.replace("logueo.html");
     }
-  </script>  
+  </script>   -->
  
 </head>
 
@@ -107,7 +107,7 @@
         <div id="map"></div>
     </div>
 </div>
-  <!-- <div class="container">
+  <div class="container">
     <h3>Centro de Monitoreo</h3>
     <div class="row mb-3">
       <div class="col">
@@ -136,7 +136,7 @@
       <ul id="choferes" class="list-group"></ul>
     </div>
     <div id="map" style="flex-grow: 1;"></div>
-  </div> -->
+  </div> 
   
   <script>
     // Variables globales

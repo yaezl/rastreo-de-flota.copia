@@ -1,757 +1,576 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seguimiento de Ruta - GeoBuild S.A.</title>
-  <link rel="stylesheet" href="../css/bootstrap.css">
-  <link rel="stylesheet" href="../css/costume.css">
-  <link rel="stylesheet" href="../css/cruds.css">
-  <link rel="manifest" href="/frontend/manifest.json">
-  <meta name="theme-color" content="#004643">
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-  <style>
-    #mapa {
-      height: 400px;
-      width: 100%;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .parada {
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #0d6efd;
-    }
-    .parada.completada {
-      border-left: 4px solid #198754;
-      background-color: #d1e7dd;
-    }
-    .estado-badge {
-      font-size: 0.85rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 20px;
-    }
-    .card-header {
-      background-color: #f8f9fa;
-      font-weight: bold;
-    }
-    .info-conductor {
-      background-color: #f0f8ff;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    .instrucciones {
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header class="d-flex align-items-center justify-content-between py-3 mb-4 border-bottom">
-      <a href="#" class="navbar-brand d-flex align-items-center">
-        <img src="../img/iconoSF.png" alt="Logo" class="img-fluid" style="max-height: 50px;">
-        <span class="fs-5" id="nombreEmpresa">GeoBuild S.A.</span>
-      </a>
-    </header>
-  </div>
-
-  <main class="container">
-    <div class="info-conductor" id="info-conductor">
-      <h4>Información del Conductor</h4>
-      <div id="datos-conductor">Cargando datos...</div>
-    </div>
-
-    <div class="card mb-4">
-      <div class="card-header">
-        Ruta de Servicio
-      </div>
-      <div class="card-body">
-        <div id="estado-seguimiento" class="alert alert-info">
-          Iniciando servicio...
-        </div>
-        
-        <div id="mapa"></div>
-        
-        <h5 class="mt-4 mb-3">Paradas de Pasajeros</h5>
-        <div id="lista-paradas">
-          <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card mb-4">
-      <div class="card-header">
-        Control de Servicio
-      </div>
-      <div class="card-body">
-        <button id="btn-iniciar" class="btn btn-success w-100 mb-3">Iniciar Servicio</button>
-        <button id="btn-finalizar" class="btn btn-danger w-100 mb-3" disabled>Finalizar Servicio</button>
-        <button id="btn-parada" class="btn btn-primary w-100" disabled>Marcar Próxima Parada como Completada</button>
-      </div>
-    </div>
-
-    <div class="card mb-4">
-      <div class="card-header">
-        Instalación de la Aplicación
-      </div>
-      <div class="card-body">
-        <button id="btn-instalar" class="btn btn-primary w-100 mb-2" style="display:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download me-2" viewBox="0 0 16 16">
-            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-          </svg>
-          Instalar Aplicación
-        </button>
-        <p id="app-instalada" class="text-success mb-0" style="display:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill me-2" viewBox="0 0 16 16">
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-          </svg>
-          Aplicación instalada correctamente
-        </p>
-        <p id="instrucciones-instalar" class="text-muted mt-2" style="display:none;">
-          Para instalar, toca los tres puntos ⋮ en tu navegador y selecciona "Agregar a pantalla de inicio"
-        </p>
-      </div>
-    </div>
-  </main>
-
-  <footer class="py-3 my-4 border-top">
-    <div class="container text-center">
-      <p class="text-muted mb-0">&copy; 2025 GeoBuild S.A.</p>
-    </div>
-  </footer>
-
-  <!-- Leaflet JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-
-  <script>
-    // Constantes y variables globales
-    const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com/api';
-    let mapa;
-    let marcadorConductor;
-    let rutaPolyline;
-    let paradaActual = 0;
-    let paradas = [];
-    let watchPositionId;
-    let dniConductor;
-    let servicioActivo = false;
-    let deferredPrompt;
-
-    // Función principal de inicio
-    document.addEventListener("DOMContentLoaded", async () => {
-      // Obtener el DNI del conductor desde la URL
-      const params = new URLSearchParams(window.location.search);
-      dniConductor = params.get("dni");
-
-      if (!dniConductor) {
-        mostrarError("Acceso inválido: falta el DNI en la URL.");
-        return;
-      }
-
-      // Verificar si el conductor existe en la base de datos
-      try {
-        const conductor = await obtenerDatosConductor(dniConductor);
-        if (!conductor) {
-          mostrarError("Conductor no encontrado en el sistema.");
-          return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Ruta - GeoBuild S.A.</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="../css/costume.css">
+    <link rel="stylesheet" href="../css/cruds.css">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#004643">
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
-        
-        // Mostrar información del conductor
-        mostrarInfoConductor(conductor);
-        
-        // Inicializar el mapa
-        inicializarMapa();
-        
-        // Cargar paradas (pasajeros asignados)
-        await cargarParadas(conductor.vehiculo);
-        
-        // Configurar eventos de botones
-        configurarEventosBotones();
-        
-        // Configurar Service Worker para PWA
-        registrarServiceWorker();
-        
-        // Configurar instalación de PWA
-        configurarInstalacionPWA();
-        
-        // Verificar si ya tenemos acceso a la ubicación
-        verificarPermisoUbicacion();
 
-      } catch (error) {
-        console.error("Error en la inicialización:", error);
-        mostrarError("Error al inicializar la aplicación: " + error.message);
-      }
+        .alert {
+            font-size: 0.95rem;
+        }
+
+        .conductor-info {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .install-button {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            #map {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="d-flex align-items-center justify-content-between py-3 mb-4 border-bottom">
+            <a href="#" class="navbar-brand d-flex align-items-center">
+                <img src="../img/iconoSF.png" alt="Logo" class="img-fluid" style="max-height: 50px;">
+                <span class="fs-5">GeoBuild S.A.</span>
+            </a>
+        </header>
+    </div>
+
+    <main class="container">
+        <div class="alert alert-info" id="estado">Inicializando seguimiento...</div>
+
+        <button id="instalarApp" class="btn btn-primary install-button">Instalar aplicación</button>
+
+        <div class="conductor-info" id="infoConductor">
+            <!-- Aquí se mostrará información del conductor y vehículo -->
+        </div>
+
+        <div id="map"></div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Información de Ruta</h5>
+            </div>
+            <div class="card-body">
+                <div id="rutaInfo">
+                    <!-- Aquí se mostrarán detalles de la ruta -->
+                    <p>Cargando información de ruta...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-3 my-4 border-top">
+        <div class="container text-center">
+            <p class="text-muted mb-0">&copy; 2025 GeoBuild S.A.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Conexión a Supabase
+        const SUPABASE_URL = 'TU_URL_DE_SUPABASE';
+        const SUPABASE_KEY = 'TU_ANON_KEY';
+        
+        const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com/api';
+        let map, directionsService, directionsRenderer;
+        let markerConductor;
+        let watchId;
+        let deferredPrompt;
+        let compartiendo=false; //bandera para controlar si esta compartiendo
+        let ultimaActualizacion = new Date();
+
+        // Comprobar si el navegador soporta service workers
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado con éxito:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Error al registrar el Service Worker:', error);
+                    });
+            });
+        }
+
+        // Escuchar el evento para instalar la aplicación
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btnInstalar = document.getElementById('instalarApp');
+            btnInstalar.style.display = 'block';
+
+            btnInstalar.addEventListener('click', () => {
+                btnInstalar.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuario aceptó instalar la app');
+                    } else {
+                        console.log('Usuario rechazó instalar la app');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        // Obtener el DNI de la URL
+        const dni = new URLSearchParams(window.location.search).get('dni');
+        if (!dni) {
+            document.getElementById('estado').classList.replace('alert-info', 'alert-danger');
+            document.getElementById('estado').textContent = 'Acceso inválido: falta el DNI en la URL.';
+            throw new Error("Falta DNI en la URL");
+        }
+
+        // Inicializar el mapa de Google Maps
+        function initMap() {
+            directionsService = new google.maps.DirectionsService();
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: -32.8894587, lng: -68.8458386 }, // Coordenadas de Mendoza (por defecto)
+                zoom: 13,
+                mapTypeControl: false,
+                fullscreenControl: true,
+                streetViewControl: false
+            });
+
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: '#0d6efd',
+                    strokeWeight: 5
+                }
+            });
+        }
+        // Crear botón para compartir ubicación
+function crearBotonCompartir() {
+    const controlButton = document.createElement('button');
+    controlButton.id = 'compartirUbicacion';
+    controlButton.className = 'btn btn-success';
+    controlButton.style.margin = '10px';
+    controlButton.style.padding = '10px 15px';
+    controlButton.innerHTML = 'Compartir ubicación';
+    controlButton.title = 'Haz clic para compartir tu ubicación';
+    
+    // Verificar estado actual de compartición
+    verificarEstadoComparticion().then(estado => {
+        compartiendo = estado;
+        actualizarEstiloBoton(controlButton);
     });
 
-    // Registro del Service Worker para PWA
-    function registrarServiceWorker() {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/frontend/service-worker.js')
-          .then(registration => {
-            console.log('Service Worker registrado correctamente', registration);
-          })
-          .catch(error => {
-            console.error('Error al registrar el Service Worker:', error);
-          });
-      }
-    }
-
-    // Configuración para la instalación de PWA
-    function configurarInstalacionPWA() {
-      // Verificar si ya está instalada
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        document.getElementById('app-instalada').style.display = 'block';
-        return;
-      }
-
-      const btnInstalar = document.getElementById('btn-instalar');
-      const instruccionesInstalar = document.getElementById('instrucciones-instalar');
-      
-      // Mostrar instrucciones para dispositivos móviles
-      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        instruccionesInstalar.style.display = 'block';
-      }
-
-      // Capturar evento de instalación disponible
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        btnInstalar.style.display = 'block';
-      });
-
-      // Evento para instalar la aplicación
-      btnInstalar.addEventListener('click', () => {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-              console.log('Usuario aceptó instalar la PWA');
-              document.getElementById('app-instalada').style.display = 'block';
-              btnInstalar.style.display = 'none';
-            }
-            deferredPrompt = null;
-          });
-        }
-      });
-    }
-
-    // Obtener datos del conductor desde la API
-    async function obtenerDatosConductor(dni) {
-      try {
-        const response = await fetch(`${API_URL}/conductores/${dni}`);
-        if (!response.ok) {
-          if (response.status === 404) {
-            return null;
-          }
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        return await response.json();
-      } catch (error) {
-        console.error("Error al obtener datos del conductor:", error);
-        throw error;
-      }
-    }
-
-    // Mostrar información del conductor en la interfaz
-    function mostrarInfoConductor(conductor) {
-      const contenedor = document.getElementById('datos-conductor');
-      contenedor.innerHTML = `
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>DNI:</strong> ${conductor.dni}</p>
-            <p><strong>Nombre:</strong> ${conductor.nombreCompleto}</p>
-          </div>
-          <div class="col-md-6">
-            <p><strong>Licencia:</strong> Categoría ${conductor.categoriaLic}</p>
-            <p><strong>Vehículo asignado:</strong> ${conductor.vehiculo || 'No asignado'}</p>
-          </div>
-        </div>
-      `;
-
-      // Si no tiene vehículo asignado, mostrar advertencia
-      if (!conductor.vehiculo) {
-        const estadoSeguimiento = document.getElementById('estado-seguimiento');
-        estadoSeguimiento.className = 'alert alert-warning';
-        estadoSeguimiento.textContent = '⚠️ No tienes un vehículo asignado. Contacta con administración.';
+    controlButton.addEventListener('click', () => {
+        // Cambiar estado de compartición
+        compartiendo = !compartiendo;
+        actualizarEstiloBoton(controlButton);
         
-        // Deshabilitar botones
-        document.getElementById('btn-iniciar').disabled = true;
-      }
-    }
-
-    // Inicializar el mapa de Leaflet
-    function inicializarMapa() {
-      // Crear mapa centrado en Argentina (aproximadamente)
-      mapa = L.map('mapa').setView([-34.603722, -58.381592], 13);
-      
-      // Agregar capa de OpenStreetMap
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(mapa);
-      
-      // Crear polyline para la ruta (inicialmente vacía)
-      rutaPolyline = L.polyline([], {
-        color: '#0d6efd',
-        weight: 5,
-        opacity: 0.7
-      }).addTo(mapa);
-    }
-
-    // Cargar paradas (pasajeros) asignados al vehículo
-    async function cargarParadas(patente) {
-      if (!patente) {
-        document.getElementById('lista-paradas').innerHTML = 
-          '<div class="alert alert-warning">No hay vehículo asignado, no se pueden cargar paradas.</div>';
-        return;
-      }
-
-      try {
-        // Obtener los pasajeros asignados a este vehículo
-        const response = await fetch(`${API_URL}/pasajeros`);
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
+        // Actualizar en la base de datos
+        actualizarEstadoComparticion(compartiendo);
         
-        const pasajeros = await response.json();
-        const pasajerosVehiculo = pasajeros.filter(p => p.vehiculoasignado === patente);
-        
-        if (pasajerosVehiculo.length === 0) {
-          document.getElementById('lista-paradas').innerHTML = 
-            '<div class="alert alert-info">No hay pasajeros asignados a este vehículo.</div>';
-          return;
-        }
-        
-        // Para simplificar, generamos ubicaciones ficticias cerca del centro de Buenos Aires
-        // En una implementación real, estas ubicaciones vendrían de la base de datos
-        const centroBA = [-34.603722, -58.381592];
-        
-        // Generar paradas con ubicaciones cercanas al centro (simulación)
-        paradas = pasajerosVehiculo.map((pasajero, index) => {
-          // Generar ubicación aleatoria cercana al centro
-          const lat = centroBA[0] + (Math.random() - 0.5) * 0.05;
-          const lng = centroBA[1] + (Math.random() - 0.5) * 0.05;
-          
-          return {
-            id: pasajero.dni,
-            nombre: pasajero.nombreCompleto,
-            domicilio: pasajero.domicilio,
-            posicion: [lat, lng],
-            completada: false
-          };
-        });
-
-        // Destino final (simulación - podría ser la ubicación de la empresa)
-        paradas.push({
-          id: 'destino',
-          nombre: 'Destino Final - GeoBuild S.A.',
-          domicilio: 'Oficina Central',
-          posicion: [centroBA[0] + 0.02, centroBA[1] + 0.02],
-          completada: false,
-          esDestino: true
-        });
-
-        // Mostrar paradas en la interfaz
-        mostrarListaParadas();
-        
-        // Añadir marcadores de paradas al mapa
-        mostrarMarcadoresParadas();
-
-      } catch (error) {
-        console.error("Error al cargar pasajeros:", error);
-        document.getElementById('lista-paradas').innerHTML = 
-          `<div class="alert alert-danger">Error al cargar pasajeros: ${error.message}</div>`;
-      }
-    }
-
-    // Mostrar lista de paradas en la interfaz
-    function mostrarListaParadas() {
-      const contenedor = document.getElementById('lista-paradas');
-      
-      if (paradas.length === 0) {
-        contenedor.innerHTML = '<div class="alert alert-info">No hay paradas programadas.</div>';
-        return;
-      }
-      
-      contenedor.innerHTML = paradas.map((parada, index) => `
-        <div class="parada ${parada.completada ? 'completada' : ''}" id="parada-${index}">
-          <div class="d-flex justify-content-between align-items-center">
-            <h6 class="mb-1">${parada.esDestino ? '🏁' : '🚏'} ${parada.nombre}</h6>
-            <span class="estado-badge badge ${parada.completada ? 'bg-success' : 'bg-secondary'}">
-              ${parada.completada ? 'Completada' : 'Pendiente'}
-            </span>
-          </div>
-          <p class="mb-1 text-muted small">${parada.domicilio}</p>
-          ${parada.esDestino ? '<p class="mb-0 text-success small">Destino final</p>' : ''}
-        </div>
-      `).join('');
-    }
-
-    // Añadir marcadores de paradas al mapa
-    function mostrarMarcadoresParadas() {
-      if (paradas.length === 0) return;
-      
-      // Crear grupo para marcadores de paradas
-      const marcadoresParadas = [];
-      
-      // Añadir cada parada al mapa
-      paradas.forEach((parada, index) => {
-        const icono = parada.esDestino ? 
-          L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-          }) : 
-          L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-          });
-        
-        const marcador = L.marker(parada.posicion, { icon: icono })
-          .bindPopup(`<b>${parada.nombre}</b><br>${parada.domicilio}`)
-          .addTo(mapa);
-        
-        marcadoresParadas.push(marcador);
-      });
-      
-      // Ajustar el mapa para mostrar todas las paradas
-      const grupo = L.featureGroup(marcadoresParadas);
-      mapa.fitBounds(grupo.getBounds().pad(0.1));
-    }
-
-    // Configurar eventos de botones
-    function configurarEventosBotones() {
-      // Botón para iniciar servicio
-      document.getElementById('btn-iniciar').addEventListener('click', iniciarServicio);
-      
-      // Botón para finalizar servicio
-      document.getElementById('btn-finalizar').addEventListener('click', finalizarServicio);
-      
-      // Botón para marcar parada como completada
-      document.getElementById('btn-parada').addEventListener('click', marcarParadaCompletada);
-    }
-
-    // Función para iniciar servicio
-    function iniciarServicio() {
-      if (!navigator.geolocation) {
-        mostrarError("Tu navegador no soporta geolocalización.");
-        return;
-      }
-      
-      // Solicitar permiso de ubicación
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // Guardar estado
-          servicioActivo = true;
-          
-          // Actualizar UI
-          document.getElementById('btn-iniciar').disabled = true;
-          document.getElementById('btn-finalizar').disabled = false;
-          document.getElementById('btn-parada').disabled = false;
-          
-          const estadoSeguimiento = document.getElementById('estado-seguimiento');
-          estadoSeguimiento.className = 'alert alert-success';
-          estadoSeguimiento.innerHTML = '✅ Servicio iniciado. Compartiendo ubicación en tiempo real.';
-          
-          // Iniciar seguimiento continuo de ubicación
-          iniciarSeguimientoUbicacion();
-          
-          // Si no hay paradas pendientes, mostrar mensaje
-          if (paradas.length === 0) {
-            document.getElementById('btn-parada').disabled = true;
-          }
-        },
-        (error) => {
-          console.error("Error al obtener permiso de ubicación:", error);
-          mostrarError(`Error al obtener permiso de ubicación: ${getErrorUbicacion(error)}`);
-        },
-        { enableHighAccuracy: true }
-      );
-    }
-
-    // Función para finalizar servicio
-    function finalizarServicio() {
-      if (confirm("¿Estás seguro de finalizar el servicio?")) {
-        // Detener seguimiento
-        if (watchPositionId) {
-          navigator.geolocation.clearWatch(watchPositionId);
-          watchPositionId = null;
-        }
-        
-        // Actualizar estado
-        servicioActivo = false;
-        
-        // Actualizar UI
-        document.getElementById('btn-iniciar').disabled = false;
-        document.getElementById('btn-finalizar').disabled = true;
-        document.getElementById('btn-parada').disabled = true;
-        
-        const estadoSeguimiento = document.getElementById('estado-seguimiento');
-        estadoSeguimiento.className = 'alert alert-secondary';
-        estadoSeguimiento.innerHTML = '🛑 Servicio finalizado.';
-        
-        // Enviar datos de finalización al servidor
-        enviarDatosFinalizacion();
-      }
-    }
-
-    // Iniciar seguimiento continuo de ubicación
-    function iniciarSeguimientoUbicacion() {
-      // Array para almacenar el historial de posiciones
-      const posiciones = [];
-      
-      // Configuración del seguimiento
-      const options = {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 10000
-      };
-      
-      // Iniciar seguimiento
-      watchPositionId = navigator.geolocation.watchPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          
-          // Añadir posición al historial
-          posiciones.push([latitude, longitude]);
-          
-          // Actualizar marcador del conductor
-          actualizarPosicionConductor(latitude, longitude);
-          
-          // Actualizar polyline de la ruta
-          actualizarRuta(posiciones);
-          
-          // Enviar posición al servidor
-          enviarPosicionAlServidor(latitude, longitude);
-          
-          // Verificar proximidad a paradas
-          verificarProximidadParadas(latitude, longitude);
-        },
-        (error) => {
-          console.error("Error al seguir ubicación:", error);
-          const estadoSeguimiento = document.getElementById('estado-seguimiento');
-          estadoSeguimiento.className = 'alert alert-warning';
-          estadoSeguimiento.innerHTML = `⚠️ Error al actualizar ubicación: ${getErrorUbicacion(error)}`;
-        },
-        options
-      );
-    }
-
-    // Actualizar marcador del conductor en el mapa
-    function actualizarPosicionConductor(lat, lng) {
-      // Si ya existe, actualizar posición
-      if (marcadorConductor) {
-        marcadorConductor.setLatLng([lat, lng]);
-      } else {
-        // Crear nuevo marcador
-        const iconoConductor = L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34]
-        });
-        
-        marcadorConductor = L.marker([lat, lng], { icon: iconoConductor })
-          .bindPopup('Tu ubicación actual')
-          .addTo(mapa);
-      }
-      
-      // Centrar mapa en la posición actual
-      mapa.setView([lat, lng], mapa.getZoom());
-    }
-
-    // Actualizar la línea de ruta en el mapa
-    function actualizarRuta(posiciones) {
-      rutaPolyline.setLatLngs(posiciones);
-    }
-
-    // Enviar posición al servidor
-    function enviarPosicionAlServidor(lat, lng) {
-      // Crear objeto con los datos
-      const datos = {
-        dni: dniConductor,
-        latitud: lat,
-        longitud: lng,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Enviar datos al servidor
-      fetch(`${API_URL}/ubicacion`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos)
-      }).catch(error => {
-        console.error("Error al enviar ubicación al servidor:", error);
-      });
-    }
-
-    // Verificar proximidad a paradas
-    function verificarProximidadParadas(lat, lng) {
-      // Encontrar próxima parada pendiente
-      const paradaPendiente = paradas.findIndex(p => !p.completada);
-      
-      if (paradaPendiente === -1) return; // No hay paradas pendientes
-      
-      const parada = paradas[paradaPendiente];
-      const distancia = calcularDistancia(lat, lng, parada.posicion[0], parada.posicion[1]);
-      
-      // Si estamos cerca de la parada (menos de 100 metros)
-      if (distancia < 0.1) {
-        const estadoSeguimiento = document.getElementById('estado-seguimiento');
-        estadoSeguimiento.className = 'alert alert-warning';
-        estadoSeguimiento.innerHTML = `⚠️ Estás cerca de la parada: <strong>${parada.nombre}</strong>`;
-      }
-    }
-
-    // Calcular distancia entre dos puntos (en km)
-    function calcularDistancia(lat1, lon1, lat2, lon2) {
-      const R = 6371; // Radio de la Tierra en km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    // Marcar parada actual como completada
-    function marcarParadaCompletada() {
-      // Encontrar índice de la próxima parada pendiente
-      const paradaPendiente = paradas.findIndex(p => !p.completada);
-      
-      if (paradaPendiente === -1) {
-        alert("No hay más paradas pendientes.");
-        document.getElementById('btn-parada').disabled = true;
-        return;
-      }
-      
-      // Marcar como completada
-      paradas[paradaPendiente].completada = true;
-      
-      // Actualizar UI
-      mostrarListaParadas();
-      
-      // Actualizar mensaje de estado
-      const estadoSeguimiento = document.getElementById('estado-seguimiento');
-      
-      if (paradas[paradaPendiente].esDestino) {
-        estadoSeguimiento.className = 'alert alert-success';
-        estadoSeguimiento.innerHTML = '✅ Has llegado al destino final.';
-        document.getElementById('btn-parada').disabled = true;
-      } else {
-        // Buscar próxima parada pendiente
-        const siguienteParada = paradas.find((p, i) => i > paradaPendiente && !p.completada);
-        
-        if (siguienteParada) {
-          estadoSeguimiento.className = 'alert alert-info';
-          estadoSeguimiento.innerHTML = `ℹ️ Dirigiéndose a la siguiente parada: <strong>${siguienteParada.nombre}</strong>`;
+        if (compartiendo) {
+            document.getElementById('estado').textContent = 'Compartiendo ubicación en tiempo real';
+            document.getElementById('estado').classList.replace('alert-info', 'alert-success');
         } else {
-          estadoSeguimiento.className = 'alert alert-info';
-          estadoSeguimiento.innerHTML = 'ℹ️ No hay más paradas pendientes.';
-          document.getElementById('btn-parada').disabled = true;
+            document.getElementById('estado').textContent = 'Has dejado de compartir tu ubicación';
+            document.getElementById('estado').classList.replace('alert-success', 'alert-warning');
         }
-      }
-      
-      // Guardar progreso
-      guardarProgreso();
-    }
+    });
+    
+    return controlButton;
+}
 
-    // Guardar progreso de paradas en localStorage
-    function guardarProgreso() {
-      try {
-        const progreso = {
-          dni: dniConductor,
-          paradas: paradas.map(p => ({
-            id: p.id,
-            completada: p.completada
-          })),
-          fecha: new Date().toISOString()
-        };
+// Actualizar estilo del botón según estado
+function actualizarEstiloBoton(boton) {
+    if (compartiendo) {
+        boton.className = 'btn btn-danger';
+        boton.innerHTML = 'Dejar de compartir';
+    } else {
+        boton.className = 'btn btn-success';
+        boton.innerHTML = 'Compartir ubicación';
+    }
+}
+
+// Verificar estado actual de compartición en la base de datos
+async function verificarEstadoComparticion() {
+    try {
+        const res = await fetch(`${API_URL}/conductores/${dni}`);
+        if (!res.ok) throw new Error('Error al verificar estado');
         
-        localStorage.setItem(`progreso_${dniConductor}`, JSON.stringify(progreso));
-      } catch (error) {
-        console.error("Error al guardar progreso:", error);
-      }
+        const conductor = await res.json();
+        return conductor.compartiendo === true;
+    } catch (error) {
+        console.error('Error al verificar estado de compartición:', error);
+        return false;
     }
+}
 
-    // Cargar progreso desde localStorage
-    function cargarProgreso() {
-      try {
-        const progreso = localStorage.getItem(`progreso_${dniConductor}`);
-        
-        if (progreso) {
-          const datos = JSON.parse(progreso);
-          
-          // Actualizar estado de paradas
-          if (datos.paradas && datos.paradas.length > 0) {
-            datos.paradas.forEach(p => {
-              const paradaGuardada = paradas.find(par => par.id === p.id);
-              if (paradaGuardada) {
-                paradaGuardada.completada = p.completada;
-              }
-            });
-            mostrarListaParadas();
-          }
-        }
-      } catch (error) {
-        console.error("Error al cargar progreso:", error);
-      }
-    }
-
-    // Mostrar mensaje de error
-    function mostrarError(mensaje) {
-      const estadoSeguimiento = document.getElementById('estado-seguimiento');
-      estadoSeguimiento.className = 'alert alert-danger';
-      estadoSeguimiento.innerHTML = `❌ ${mensaje}`;
-
-      document.getElementById('btn-iniciar').disabled = true;
-      document.getElementById('btn-finalizar').disabled = true;
-      document.getElementById('btn-parada').disabled = true;
-    }
-
-    // Obtener descripción de errores de ubicación
-    function getErrorUbicacion(error) {
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          return "El usuario denegó el permiso de geolocalización.";
-        case error.POSITION_UNAVAILABLE:
-          return "La información de ubicación no está disponible.";
-        case error.TIMEOUT:
-          return "La solicitud de ubicación expiró.";
-        default:
-          return "Error desconocido al obtener ubicación.";
-      }
-    }
-
-    // Verificar si se tienen permisos de ubicación al iniciar
-    function verificarPermisoUbicacion() {
-      if (!navigator.permissions) return;
-
-      navigator.permissions.query({ name: 'geolocation' })
-        .then(result => {
-          if (result.state === 'granted') {
-            console.log('Permiso de geolocalización ya concedido');
-          } else if (result.state === 'prompt') {
-            console.log('Se solicitará permiso de geolocalización');
-          } else {
-            mostrarError("No se puede acceder a la ubicación: permiso denegado.");
-          }
+// Actualizar estado de compartición en la base de datos
+async function actualizarEstadoComparticion(estado) {
+    try {
+        const response = await fetch(`${API_URL}/conductores/${dni}/compartir`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ compartiendo: estado })
         });
+        
+        if (!response.ok) {
+            throw new Error('Error al actualizar estado de compartición');
+        }
+        
+        console.log('Estado de compartición actualizado correctamente');
+    } catch (error) {
+        console.error('Error al actualizar estado de compartición:', error);
+        alert('Error al actualizar estado. Inténtalo de nuevo.');
     }
-  </script>
-</body>
-</html>
+}
 
+
+
+
+
+
+
+        // Obtener datos del conductor desde la API
+        async function obtenerConductor(dni) {
+            try {
+                const res = await fetch(`${API_URL}/conductores/${dni}`);
+                if (!res.ok) {
+                    throw new Error('Conductor no encontrado');
+                }
+                const conductor = await res.json();
+
+                // Actualizar la interfaz con los datos del conductor
+                const infoConductor = document.getElementById('infoConductor');
+                infoConductor.innerHTML = `
+                    <h5>Conductor: ${conductor.nombreCompleto}</h5>
+                    <p><strong>DNI:</strong> ${conductor.dni}</p>
+                    <p><strong>Vehículo asignado:</strong> ${conductor.vehiculo || 'No asignado'}</p>
+                `;
+                  // Verificar el estado de compartición
+        compartiendo = conductor.compartiendo === true;
+        const botonCompartir = document.getElementById('compartirUbicacion');
+        if (botonCompartir) {
+            actualizarEstiloBoton(botonCompartir);
+        }
+
+
+
+
+                return conductor;
+            } catch (error) {
+                document.getElementById('estado').classList.replace('alert-info', 'alert-danger');
+                document.getElementById('estado').textContent = 'Error: ' + error.message;
+                throw error;
+            }
+        }
+
+        // Obtener los pasajeros asignados al vehículo
+        async function obtenerPasajeros(patente) {
+            try {
+                const res = await fetch(`${API_URL}/pasajeros`);
+                if (!res.ok) {
+                    throw new Error('Error al obtener pasajeros');
+                }
+
+                const pasajeros = await res.json();
+
+                const pasajerosFiltrados = pasajeros.filter(p => {
+                    const patenteAsig = typeof p.vehiculoasignado === 'object'
+                        ? p.vehiculoasignado?.patente
+                        : p.vehiculoasignado;
+                    return patenteAsig?.trim() === patente;
+                });
+
+                const rutaInfo = document.getElementById('rutaInfo');
+                if (pasajerosFiltrados.length > 0) {
+                    let pasajerosHTML = '<h6>Pasajeros a recoger:</h6><ul>';
+                    pasajerosFiltrados.forEach(p => {
+                        pasajerosHTML += `<li>${p.nombreCompleto} - ${p.domicilio}</li>`;
+                    });
+                    pasajerosHTML += '</ul>';
+                    rutaInfo.innerHTML = pasajerosHTML;
+                } else {
+                    rutaInfo.innerHTML = '<p>No hay pasajeros asignados a este vehículo.</p>';
+                }
+
+                return pasajerosFiltrados;
+            } catch (error) {
+                console.error("Error al obtener pasajeros:", error);
+                document.getElementById('estado').classList.replace('alert-info', 'alert-warning');
+                document.getElementById('estado').textContent = 'Error al obtener pasajeros: ' + error.message;
+                return [];
+            }
+        }
+
+        // Trazar la ruta en el mapa
+        function trazarRuta(origen, paradas, destino) {
+            // Convertir las paradas a waypoints para la API de Google Maps
+            const waypoints = paradas
+                .filter(p => p.latitud && p.longitud && !isNaN(p.latitud) && !isNaN(p.longitud))
+                .map(p => ({
+                    location: { lat: parseFloat(p.latitud), lng: parseFloat(p.longitud) },
+                    stopover: true
+                }));
+
+            // Crear la solicitud de ruta
+            const request = {
+                origin: origen,
+                destination: destino,
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.DRIVING,
+                optimizeWaypoints: true
+            };
+
+            // Obtener la ruta con el servicio de direcciones
+            directionsService.route(request, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    // Mostrar la ruta en el mapa
+                    directionsRenderer.setDirections(result);
+
+                    // Actualizar la información de la ruta
+                    const ruta = result.routes[0];
+                    let distanciaTotal = 0;
+                    let tiempoTotal = 0;
+
+                    ruta.legs.forEach(leg => {
+                        distanciaTotal += leg.distance.value;
+                        tiempoTotal += leg.duration.value;
+                    });
+
+                    // Convertir a formato legible
+                    const distanciaKm = (distanciaTotal / 1000).toFixed(1);
+                    const tiempoHoras = Math.floor(tiempoTotal / 3600);
+                    const tiempoMinutos = Math.floor((tiempoTotal % 3600) / 60);
+
+                    const rutaInfo = document.getElementById('rutaInfo');
+                    rutaInfo.innerHTML += `
+                        <div class="mt-3">
+                            <h6>Detalles de la ruta:</h6>
+                            <p><strong>Distancia total:</strong> ${distanciaKm} km</p>
+                            <p><strong>Tiempo estimado:</strong> ${tiempoHoras > 0 ? tiempoHoras + ' h ' : ''}${tiempoMinutos} min</p>
+                        </div>
+                    `;
+
+                    document.getElementById('estado').classList.replace('alert-info', 'alert-success');
+                    document.getElementById('estado').textContent = 'Ruta trazada correctamente. Siguiendo tu ubicación.';
+                } else {
+                    document.getElementById('estado').classList.replace('alert-info', 'alert-danger');
+                    document.getElementById('estado').textContent = 'Error al trazar la ruta: ' + status;
+                    console.error('Error al trazar ruta:', status);
+                }
+            });
+        }
+
+        // Actualizar la ubicación del conductor
+        function actualizarUbicacion(posicion) {
+            const lat = posicion.coords.latitude;
+            const lng = posicion.coords.longitude;
+            const ahora = new Date();
+            
+            // Verificar si ha pasado suficiente tiempo desde la última actualización (10 segundos)
+            if ((ahora - ultimaActualizacion) > 10000) {
+                ultimaActualizacion = ahora;
+                
+                // Si ya existe un marcador, actualizar su posición
+                if (markerConductor) {
+                    markerConductor.setPosition({ lat, lng });
+                } else {
+                    // Crear un nuevo marcador para el conductor
+                    markerConductor = new google.maps.Marker({
+                        position: { lat, lng },
+                        map: map,
+                        icon: {
+                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                            scaledSize: new google.maps.Size(40, 40)
+                        },
+                        title: 'Tu ubicación'
+                    });
+                }
+
+                // Centrar el mapa en la posición actual
+                map.setCenter({ lat, lng });
+
+                // Enviar la ubicación al backend
+                if(compartiendo){
+                enviarUbicacion(lat, lng);
+                }
+            }
+        }
+
+        // Enviar la ubicación al backend
+        async function enviarUbicacion(latitud, longitud) {
+          try {
+        const response = await fetch(`${API_URL}/ubicacion`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dni: dni,
+                latitud: latitud,
+                longitud: longitud,
+                timestamp: new Date().toISOString(),
+                compartiendo: true
+            })
+        });
+          if(!response.ok){
+            throw new Error('Error al enviar ubicacion');
+          }
+
+                
+                // 2. Enviar a Supabase para tiempo real
+                await fetch(`${SUPABASE_URL}/rest/v1/ubicaciones_choferes`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        dni_chofer: dni,
+                        latitud: latitud,
+                        longitud: longitud,
+                        timestamp: new Date().toISOString(),
+                        activo: true
+                    })
+                });
+                
+                console.log('Ubicación enviada correctamente');
+            } catch (err) {
+                console.error('Error enviando ubicación:', err);
+            }
+        }
+
+        // Función principal
+        async function main() {
+            try {
+                // Cargar el mapa
+                initMap();
+
+                // Obtener datos del conductor
+                const conductor = await obtenerConductor(dni);
+
+                // Verificar si tiene vehículo asignado
+                if (!conductor.vehiculo) {
+                    document.getElementById('estado').classList.replace('alert-info', 'alert-warning');
+                    document.getElementById('estado').textContent = 'No tenés vehículo asignado. Contactá a administración.';
+                    return;
+                }
+
+                // Obtener la patente del vehículo
+                const patente = typeof conductor.vehiculo === 'object' ? conductor.vehiculo?.patente?.trim() : conductor.vehiculo?.trim();
+
+                // Obtener pasajeros asignados al vehículo
+                const pasajeros = await obtenerPasajeros(patente);
+
+                // Solicitar acceso a la ubicación
+                document.getElementById('estado').textContent = 'Solicitando acceso a ubicación...';
+
+                navigator.geolocation.getCurrentPosition(
+                    (posicion) => {
+                        const origen = {
+                            lat: posicion.coords.latitude,
+                            lng: posicion.coords.longitude
+                        };
+
+                        // Destino (ubicación de la empresa)
+                        const destino = { lat: -32.962028, lng: -68.718583  }; // Coordenadas de la empresa (ITU)
+
+                        // Crear marcador para el conductor
+                        markerConductor = new google.maps.Marker({
+                            position: origen,
+                            map: map,
+                            icon: {
+                                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                                scaledSize: new google.maps.Size(40, 40)
+                            },
+                            title: 'Tu ubicación'
+                        });
+
+                        // Si hay pasajeros, trazar la ruta
+                        if (pasajeros.length > 0) {
+                            trazarRuta(origen, pasajeros, destino);
+                        } else {
+                            // Si no hay pasajeros, trazar ruta directa a la empresa
+                            trazarRuta(origen, [], destino);
+                        }
+
+                        // Iniciar seguimiento de ubicación
+                        watchId = navigator.geolocation.watchPosition(
+                            actualizarUbicacion,
+                            (error) => {
+                                document.getElementById('estado').classList.replace('alert-info', 'alert-danger');
+                                document.getElementById('estado').textContent = 'Error al seguir la ubicación: ' + error.message;
+                                console.error('Error al seguir ubicación:', error);
+                            },
+                            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                        );
+                        
+                        // Enviar la primera ubicación
+                        enviarUbicacion(origen.lat, origen.lng);
+                    },
+                    (error) => {
+                        document.getElementById('estado').classList.replace('alert-info', 'alert-danger');
+                        document.getElementById('estado').textContent = 'Error al obtener ubicación: ' + error.message;
+                        console.error('Error al obtener ubicación:', error);
+                    }
+                );
+            } catch (error) {
+                document.getElementById('estado').classList.replace('alert-info', 'alert-danger');
+                document.getElementById('estado').textContent = 'Error: ' + error.message;
+                console.error('Error en la aplicación:', error);
+            }
+        }
+
+        // Notificar que el chofer está offline cuando se cierra la página
+        async function marcarOffline() {
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/ubicaciones_choferes?dni_chofer=eq.${dni}`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        activo: false
+                    })
+                });
+            } catch (err) {
+                console.error('Error al marcar offline:', err);
+            }
+        }
+
+        // Limpiar el seguimiento cuando se cierra la página
+        window.addEventListener('beforeunload', () => {
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+            marcarOffline();
+        });
+
+        // Cargar el script de Google Maps
+        function loadScript() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArifzqYFkv6deJgQqMAsB2Www-2NnpNVg&callback=main&loading=async';
+            script.defer = true;
+            script.async = true;
+            document.head.appendChild(script);
+        }
+
+        // Iniciar la carga de scripts
+        window.onload = loadScript;
+    </script>
+</body>
+
+</html>

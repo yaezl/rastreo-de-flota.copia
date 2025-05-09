@@ -1,35 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- CSS -->
-  <link rel="stylesheet" href="../css/bootstrap.css">
-  <link rel="stylesheet" href="../css/costume.css">
-  <!-- FONTS -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
-  <!-- ICON DE LA PÁGINA -->
-  <link rel="shortcut icon" href="../img/iconoSF.png" type="image/x-icon">
-  <title>Sistema de Rastreo de Flotas</title>
-  <!-- SCRIPT DE VERIFICACIÓN DE SESIÓN -->
- <!--  <script>
-    const ruta = window.location.pathname;
-    const esLogin = ruta.includes('logueo.html');
-    const esVerificacion = ruta.includes('verificacion.html');
-  
-    const verificado = sessionStorage.getItem("verificacion_completa") === "true";
-    const sesionIniciada = localStorage.getItem("inicio_sesion_correcto") === "true";
-  
-    if (!esLogin && !esVerificacion && (!verificado || !sesionIniciada)) {
-      window.location.replace("logueo.html");
-    }
-  </script>   -->
- 
-</head>
-
+  <title>Centro de Monitoreo de Flotas</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Estilos personalizados -->
+   <link rel="stylesheet" href="../css/bootstrap.css">
+   <link rel="stylesheet" href="../css/costume.css">
+   <link href="../css/monitoreo.css" rel="stylesheet">
+   <link rel="shortcut icon" href="../img/iconoSF.png" type="image/x-icon"> 
+   <title>Sistema de Rastreo de Flotas</title>
+  </head>
 <body>
   <div class="container">
     <header
@@ -37,7 +20,7 @@
       <div class="col-md-3 mb-2 mb-md-0">
         <a href="#" class="navbar-brand d-flex align-items-center">
           <img src="../img/iconoSF.png" alt="Logo Rastreo de flotas" class="img-fluid"
-            style="max-height: 50px;">
+            style="max-height: 50px ;">
           <span class="fs-5" id="nombreEmpresa"> GeoBuild S.A. </span>
         </a>
       </div>
@@ -56,284 +39,306 @@
       </div>
     </header>
   </div>
-  <hr>
+
+
+  <div class="container mb-4">
+    <h3>Centro de Monitoreo de Flotas</h3>
+    
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-value" id="conductorCount">0</div>
+        <div class="stat-label">Conductores activos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="vehicleCount">0</div>
+        <div class="stat-label">Vehículos en ruta</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="currentTime">--:--</div>
+        <div class="stat-label">Hora actual</div>
+      </div>
+    </div>
+    
+    <div class="d-flex gap-2 mb-4">
+      <button id="refreshData" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+        </svg>
+        Actualizar datos
+      </button>
+      <button id="centerMap" class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+          <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+          <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+        </svg>
+        Centrar mapa
+      </button>
+    </div>
+  </div>
 
   <div class="main-container">
     <div class="sidebar">
-        <div class="control-panel">
-            <h3>Control de Rutas</h3>
-            <div>
-                <label for="start">Origen:</label>
-                <input type="text" id="start" placeholder="Punto de origen">
-            </div>
-            <div>
-                <label for="end">Destino:</label>
-                <input type="text" id="end" placeholder="Punto de destino">
-            </div>
-            <div>
-                <label for="transport-mode">Modo de transporte:</label>
-                <select id="transport-mode">
-                    <option value="DRIVING">Automóvil</option>
-                    <option value="WALKING">Caminando</option>
-                    <option value="BICYCLING">Bicicleta</option>
-                    <option value="TRANSIT">Transporte público</option>
-                </select>
-            </div>
-            <button id="calculate-route">Calcular Ruta</button>
-            <button id="clear-route">Limpiar Ruta</button>
+      <div class="conductor-list-container">
+        <h3>Conductores Activos</h3>
+        <input type="text" id="searchConductor" class="form-control" placeholder="Buscar conductor...">
+        <div class="conductor-list" id="conductorList">
+          <!-- Los conductores se cargarán dinámicamente aquí -->
         </div>
-        
-        <div class="route-info" id="route-info">
-            <h3>Información de la Ruta</h3>
-            <div id="distance">Distancia: --</div>
-            <div id="duration">Tiempo estimado: --</div>
-        </div>
-        
-        <div class="vehicle-list">
-            <h3>Vehículos Monitoreados</h3>
-            <div class="vehicle-item" data-lat="-32.8897" data-lng="-68.8458">
-                Vehículo 1 - Unidad A-01
-            </div>
-            <div class="vehicle-item" data-lat="-32.9195" data-lng="-68.8465">
-                Vehículo 2 - Unidad B-15
-            </div>
-            <div class="vehicle-item" data-lat="-32.8726" data-lng="-68.8532">
-                Vehículo 3 - Unidad C-22
-            </div>
-        </div>
+      </div>
     </div>
     
     <div class="map-container">
-        <div id="map"></div>
-    </div>
-</div>
-  <div class="container">
-    <h3>Centro de Monitoreo</h3>
-    <div class="row mb-3">
-      <div class="col">
-        <div class="card bg-light">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <h5 class="card-title mb-0">Choferes activos</h5>
-              <span id="contadorChoferes" class="badge bg-primary">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <button id="actualizarDatos" class="btn btn-primary">Actualizar datos</button>
-        <button id="centrarMapa" class="btn btn-secondary">Centrar mapa</button>
-      </div>
+      <div id="map"></div>
+      <button id="refreshMap" class="refresh-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+        </svg>
+      </button>
     </div>
   </div>
-  
-  <div style="display: flex; height: 70vh;">
-    <div id="choferPanel" style="width: 300px; overflow-y: auto; padding: 10px; border-right: 1px solid #ccc;">
-      <h5>Choferes en movimiento</h5>
-      <div class="mb-2">
-        <input type="text" id="buscarChofer" class="form-control" placeholder="Buscar chofer...">
-      </div>
-      <ul id="choferes" class="list-group"></ul>
-    </div>
-    <div id="map" style="flex-grow: 1;"></div>
-  </div> 
-  
+
+  <!-- Script principal -->
   <script>
+    // API Endpoint
+    const API_URL = 'https://sistema-de-rastreo-de-flotas.onrender.com/api';
+    
     // Variables globales
-    let map;
-    let directionsService;
-    let directionsRenderer;
+    let map, directionsService, directionsRenderer;
+    let conductores = [];
     let markers = [];
+    let conductorMarkers = {};
+    let refreshInterval;
     
-    // Inicializar el mapa cuando la API de Google Maps se cargue
+    // Inicializar la aplicación cuando se carga el script de Google Maps
     function initMap() {
-        // Coordenadas centrales (Ciudad de México como ejemplo)
-        const center = { lat: -32.8897, lng: -68.8458 };
-        
-        // Configuración del mapa
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 12,
-            center: center,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            mapTypeControl: true,
-            mapTypeControlOptions: {
-                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                position: google.maps.ControlPosition.TOP_RIGHT
-            },
-            fullscreenControl: true,
-            streetViewControl: true,
-            zoomControl: true
-        });
-        
-        // Inicializar servicios de direcciones
-        directionsService = new google.maps.DirectionsService();
-        directionsRenderer = new google.maps.DirectionsRenderer({
-            map: map,
-            suppressMarkers: false,
-            polylineOptions: {
-                strokeColor: '#3498db',
-                strokeWeight: 5
-            }
-        });
-        
-        // Inicializar vehículos de muestra
-        initVehicles();
-        
-        // Configurar event listeners
-        document.getElementById('calculate-route').addEventListener('click', calculateRoute);
-        document.getElementById('clear-route').addEventListener('click', clearRoute);
-        
-        // Listener para los vehículos
-        const vehicleItems = document.querySelectorAll('.vehicle-item');
-        vehicleItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // Remover clase activa de todos los vehículos
-                vehicleItems.forEach(v => v.classList.remove('active'));
-                // Agregar clase activa al vehículo seleccionado
-                this.classList.add('active');
-                
-                // Obtener coordenadas del vehículo
-                const lat = parseFloat(this.getAttribute('data-lat'));
-                const lng = parseFloat(this.getAttribute('data-lng'));
-                
-                // Centrar mapa en el vehículo
-                map.setCenter({ lat, lng });
-                map.setZoom(15);
-            });
-        });
-        
-        // Actualizar la hora
-        updateTime();
-        setInterval(updateTime, 1000);
+      // Coordenadas centrales (Mendoza)
+      const center = { lat: -32.8894587, lng: -68.8458386 };
+      
+      // Configuración del mapa
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 13,
+        center: center,
+        mapTypeControl: true,
+        fullscreenControl: true,
+        streetViewControl: true,
+        zoomControl: true
+      });
+      
+      // Inicializar servicios de direcciones
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: false,
+        polylineOptions: {
+          strokeColor: '#0d6efd',
+          strokeWeight: 5
+        }
+      });
+      
+      // Configurar event listeners
+      document.getElementById('refreshData').addEventListener('click', actualizarDatos);
+      document.getElementById('centerMap').addEventListener('click', centrarMapa);
+      document.getElementById('refreshMap').addEventListener('click', actualizarDatos);
+      document.getElementById('searchConductor').addEventListener('input', filtrarConductores);
+      
+      // Actualizar la hora cada segundo
+      actualizarHora();
+      setInterval(actualizarHora, 1000);
+      
+      // Cargar datos iniciales
+      cargarDatos();
+      
+      // Configurar actualización automática cada 30 segundos
+      refreshInterval = setInterval(actualizarDatos, 30000);
     }
     
-    // Función para inicializar vehículos de muestra
-    function initVehicles() {
-        // Limpiar marcadores existentes
-        clearMarkers();
+    // Actualizar la hora actual
+    function actualizarHora() {
+      const ahora = new Date();
+      document.getElementById('currentTime').textContent = ahora.toLocaleTimeString();
+    }
+    
+    // Cargar datos de conductores y vehículos
+    async function cargarDatos() {
+      try {
+        // Mostrar spinner o mensaje de carga
+        document.getElementById('conductorCount').innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
         
-        // Obtener vehículos
-        const vehicles = document.querySelectorAll('.vehicle-item');
+        // Obtener conductores desde la API
+        const response = await fetch(`${API_URL}/conductores`);
+        if (!response.ok) {
+          throw new Error('Error al obtener datos de conductores');
+        }
         
-        // Crear marcadores para cada vehículo
-        vehicles.forEach((vehicle, index) => {
-            const lat = parseFloat(vehicle.getAttribute('data-lat'));
-            const lng = parseFloat(vehicle.getAttribute('data-lng'));
-            
+        const data = await response.json();
+        conductores = data.filter(c => c.activo === true || c.compartiendo === true);
+        
+        // Actualizar contador de conductores
+        document.getElementById('conductorCount').textContent = conductores.length;
+        document.getElementById('vehicleCount').textContent = conductores.filter(c => c.vehiculo).length;
+        
+        // Mostrar conductores en la lista
+        mostrarConductores(conductores);
+        
+        // Mostrar conductores en el mapa
+        mostrarConductoresEnMapa(conductores);
+        
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        alert('Error al cargar datos: ' + error.message);
+      }
+    }
+    
+    // Mostrar conductores en la lista lateral
+    function mostrarConductores(conductores) {
+      const listaContainer = document.getElementById('conductorList');
+      listaContainer.innerHTML = '';
+      
+      if (conductores.length === 0) {
+        listaContainer.innerHTML = '<div class="p-3 text-center text-muted">No hay conductores activos</div>';
+        return;
+      }
+      
+      conductores.forEach(conductor => {
+        const patente = typeof conductor.vehiculo === 'object' 
+          ? conductor.vehiculo?.patente 
+          : conductor.vehiculo;
+        
+        const card = document.createElement('div');
+        card.className = 'conductor-card';
+        card.dataset.dni = conductor.dni;
+        card.innerHTML = `
+          <div class="conductor-status" style="background-color: ${conductor.compartiendo ? '#28a745' : '#ffc107'}"></div>
+          <div class="conductor-info">
+            <div class="conductor-name">${conductor.nombreCompleto}</div>
+            <div class="conductor-details">
+              <div>DNI: ${conductor.dni}</div>
+              <div>Vehículo: ${patente || 'No asignado'}</div>
+            </div>
+          </div>
+        `;
+        
+        // Evento click para centrar en el conductor
+        card.addEventListener('click', () => {
+          const marker = conductorMarkers[conductor.dni];
+          if (marker) {
+            map.setCenter(marker.getPosition());
+            map.setZoom(16);
+            google.maps.event.trigger(marker, 'click');
+          }
+        });
+        
+        listaContainer.appendChild(card);
+      });
+    }
+    
+    // Filtrar conductores por búsqueda
+    function filtrarConductores() {
+      const busqueda = document.getElementById('searchConductor').value.toLowerCase();
+      
+      const conductoresFiltrados = conductores.filter(c => 
+        c.nombreCompleto.toLowerCase().includes(busqueda) || 
+        c.dni.toLowerCase().includes(busqueda)
+      );
+      
+      mostrarConductores(conductoresFiltrados);
+    }
+    
+    // Mostrar conductores en el mapa
+    function mostrarConductoresEnMapa(conductores) {
+      // Limpiar marcadores anteriores
+      limpiarMarcadores();
+      
+      conductores.forEach(conductor => {
+        // Solo mostrar conductores que comparten ubicación y tienen coordenadas
+        if (conductor.compartiendo && conductor.latitud && conductor.longitud) {
+          const lat = parseFloat(conductor.latitud);
+          const lng = parseFloat(conductor.longitud);
+          
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const patente = typeof conductor.vehiculo === 'object' 
+              ? conductor.vehiculo?.patente 
+              : conductor.vehiculo;
+              
             const marker = new google.maps.Marker({
-                position: { lat, lng },
-                map: map,
-                title: vehicle.textContent.trim(),
-                label: (index + 1).toString(),
-                animation: google.maps.Animation.DROP
+              position: { lat, lng },
+              map: map,
+              title: conductor.nombreCompleto,
+              icon: {
+                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                scaledSize: new google.maps.Size(40, 40)
+              },
+              animation: google.maps.Animation.DROP
             });
             
-            // Agregar infowindow
+            // Crear ventana de información
             const infoWindow = new google.maps.InfoWindow({
-                content: `<div><strong>${vehicle.textContent.trim()}</strong><br>Coordenadas: ${lat}, ${lng}</div>`
+              content: `
+                <div class="info-window">
+                  <h5>${conductor.nombreCompleto}</h5>
+                  <p><strong>DNI:</strong> ${conductor.dni}</p>
+                  <p><strong>Vehículo:</strong> ${patente || 'No asignado'}</p>
+                  <p><strong>Última actualización:</strong> ${new Date(conductor.ultimaActualizacion || Date.now()).toLocaleString()}</p>
+                </div>
+              `
             });
             
+            // Evento click para mostrar info
             marker.addListener('click', () => {
-                infoWindow.open(map, marker);
+              // Cerrar todas las ventanas de info abiertas
+              markers.forEach(m => m.infoWindow.close());
+              infoWindow.open(map, marker);
             });
             
+            // Guardar referencia al marcador
+            marker.infoWindow = infoWindow;
             markers.push(marker);
-        });
-    }
-    
-    // Función para calcular ruta
-    function calculateRoute() {
-        const start = document.getElementById('start').value;
-        const end = document.getElementById('end').value;
-        const mode = document.getElementById('transport-mode').value;
-        
-        if (!start || !end) {
-            alert('Por favor ingresa un origen y un destino.');
-            return;
+            conductorMarkers[conductor.dni] = marker;
+          }
         }
-        
-        const request = {
-            origin: start,
-            destination: end,
-            travelMode: google.maps.TravelMode[mode]
-        };
-        
-        directionsService.route(request, (result, status) => {
-            if (status === google.maps.DirectionsStatus.OK) {
-                directionsRenderer.setDirections(result);
-                
-                // Mostrar información de la ruta
-                const route = result.routes[0];
-                let distance = 0;
-                let duration = 0;
-                
-                // Sumar distancias y duraciones
-                for (let i = 0; i < route.legs.length; i++) {
-                    distance += route.legs[i].distance.value;
-                    duration += route.legs[i].duration.value;
-                }
-                
-                // Convertir a kilómetros y minutos
-                distance = (distance / 1000).toFixed(2);
-                duration = Math.round(duration / 60);
-                
-                // Actualizar la información en el panel
-                document.getElementById('distance').textContent = `Distancia: ${distance} km`;
-                document.getElementById('duration').textContent = `Tiempo estimado: ${duration} minutos`;
-            } else {
-                alert('No se pudo calcular la ruta: ' + status);
-            }
-        });
+      });
+      
+      // Si no hay marcadores, mostrar mensaje
+      if (markers.length === 0) {
+        console.log('No hay conductores compartiendo ubicación');
+      }
     }
     
-    // Función para limpiar ruta
-    function clearRoute() {
-        directionsRenderer.setDirections({ routes: [] });
-        document.getElementById('start').value = '';
-        document.getElementById('end').value = '';
-        document.getElementById('distance').textContent = 'Distancia: --';
-        document.getElementById('duration').textContent = 'Tiempo estimado: --';
+    // Limpiar marcadores del mapa
+    function limpiarMarcadores() {
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+      conductorMarkers = {};
     }
     
-    // Función para limpiar marcadores
-    function clearMarkers() {
-        for (let marker of markers) {
-            marker.setMap(null);
-        }
-        markers = [];
+    // Actualizar datos
+    function actualizarDatos() {
+      cargarDatos();
     }
     
-    // Función para actualizar la hora
-    function updateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-        document.getElementById('current-time').textContent = timeString;
+    // Centrar mapa en Mendoza
+    function centrarMapa() {
+      map.setCenter({ lat: -32.8894587, lng: -68.8458386 });
+      map.setZoom(13);
     }
-</script>
-
-
-<script async
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArifzqYFkv6deJgQqMAsB2Www-2NnpNVg&callback=initMap">
-    </script>
-
-
-
-
-
-
-
-
-
-
-
-  <!-- Footer -->
-  <footer class="py-3 my-4 border-top">
-    <!-- DERECHOS DE AUTOR -->
-    <div class="container text-center">
-      <p class="creditos">&copy; 2025 Desarrollo de Software, ITU-UNCUYO</p>
-    </div>
-  </footer>
-  
-  <script src="../js/bootstrap.js"></script>
+    
+    // Limpiar intervalo de actualización al cerrar la página
+    window.addEventListener('beforeunload', () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+    });
+    
+    // Esperar a que cargue la página y cargar el script de Google Maps
+    window.onload = function() {
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArifzqYFkv6deJgQqMAsB2Www-2NnpNVg&callback=initMap';
+      script.defer = true;
+      script.async = true;
+      document.head.appendChild(script);
+    };
+  </script>
 </body>
 </html>
